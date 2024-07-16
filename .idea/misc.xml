@@ -4,7 +4,7 @@
     <option name="enabledOnReformat" value="true" />
     <option name="enabledOnSave" value="true" />
     <option name="executionMode" value="BINARY" />
-    <option name="pathToExecutable" value="C:\Users\KhushMehta\My Projects\NEA-Physics-Revision-App\venv\Scripts\black.exe" />
+    <option name="pathToExecutable" value="C:\Users\Khush Mehta\PycharmProjects\NEA-Physics-Revision-App\venv\Scripts\black.exe" />
     <option name="sdkName" value="Python 3.12 (NEA-Physics-Revision-App)" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (NEA-Physics-Revision-App)" project-jdk-type="Python SDK" />
