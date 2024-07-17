@@ -4,8 +4,7 @@ from typing import Optional
 
 
 def create_connection(db_file_name: str) -> Optional[sqlite3.Connection]:
-    """Create a database connection to database {db_file_name}"""
-    conn = None
+    """Create a database connection to database specified by db_file_name"""
     try:
         conn = sqlite3.connect(db_file_name)
         return conn
@@ -27,7 +26,7 @@ def main() -> None:
     database_name = "physics_revision_app.db"
 
     sql_create_users_table = """ CREATE TABLE IF NOT EXISTS Users (
-                                        user_id integer PRIMARY KEY,
+                                        user_id integer PRIMARY KEY Autoincrement,
                                         username text NOT NULL,
                                         password text NOT NULL
                                     ); """

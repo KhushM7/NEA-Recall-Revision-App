@@ -1,6 +1,8 @@
 black==24.4.2
 click==8.1.7
 colorama==0.4.6
+customtkinter~=5.2.2
+darkdetect==0.8.0
 iniconfig==2.0.0
 mypy-extensions==1.0.0
 packaging==24.1
@@ -9,3 +11,5 @@ platformdirs==4.2.2
 pluggy==1.5.0
 pytest==8.2.2
 sv-ttk==2.6.0
+
+bcrypt~=4.1.3

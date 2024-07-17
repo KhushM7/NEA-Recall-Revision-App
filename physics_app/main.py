@@ -1,32 +1,30 @@
 import tkinter as tk
+import sv_ttk
+from physics_app.modules.user_authentication import UserAuthentication
+from physics_app.views.signUp_login_page import SignUpLoginPage
 
 
 class PhysicsApp(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master: tk.Tk = None):
         super().__init__(master)
         self.master = master
-        self.pack()
+        self.auth = UserAuthentication("../data/physics_revision_app.db")
         self.create_widgets()
 
     def create_widgets(self):
-        self.hi_there = tk.Button(self)
-        self.hi_there["text"] = "Hello World\n(click me)"
-        self.hi_there["command"] = self.say_hi
-        self.hi_there.pack(side="top")
-        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
-        self.quit.pack(side="bottom")
+        self.signUp_login_page = SignUpLoginPage(self, self.auth)
+        self.signUp_login_page.pack()
 
-    def say_hi(self):
-        self.message = "Hi there, everyone!"
-        print(self.message)
+
+def main():
+    root = tk.Tk()
+    app = PhysicsApp(master=root)
+    root.title("Physics App")
+    root.state("zoomed")
+    sv_ttk.use_light_theme()
+    app.pack(expand=True, fill="both")
+    root.mainloop()
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Physics App")
-    root.state("zoomed")
-
-    app = PhysicsApp(master=root)
-    app.pack(expand=True, fill="both")
-
-    root.mainloop()
+    main()
