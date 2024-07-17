@@ -1,66 +1,45 @@
-from __future__ import print_function
-from typing import Dict
-
-import mysql.connector
-from mysql.connector import errorcode
-from mysql.connector.abstracts import MySQLCursorAbstract
-
-DB_NAME = "physics_revision_app"
-TABLES: dict[str, str] = {
-    "users": (
-        "CREATE TABLE `users` ("
-        "  `user_id` int NOT NULL AUTO_INCREMENT,"
-        "  `username` varchar(50) NOT NULL,"
-        "  `password` varchar(50) NOT NULL,"
-        "  `email` varchar(50) NOT NULL,"
-        "  PRIMARY KEY (`user_id`)"
-        ") ENGINE=InnoDB"
-    )
-}
-
-cnx = mysql.connector.connect(
-    user="root",
-    password="ne6$HQUfANzeA3b%",
-    host="localhost",
-    database="physics_revision_app",
-)
-cursor = cnx.cursor()
+import sqlite3
+from sqlite3 import Error
+from typing import Optional
 
 
-def create_database(db_cursor: MySQLCursorAbstract) -> None:
+def create_connection(db_file_name: str) -> Optional[sqlite3.Connection]:
+    """Create a database connection to database {db_file_name}"""
+    conn = None
     try:
-        db_cursor.execute(
-            "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME)
-        )
-    except mysql.connector.Error as db_err:
-        print("Failed creating database: {}".format(db_err))
-        exit(1)
+        conn = sqlite3.connect(db_file_name)
+        return conn
+    except Error as e:
+        print(e)
+        return None
 
 
-try:
-    cursor.execute("USE {}".format(DB_NAME))
-except mysql.connector.Error as err:
-    print("Database {} does not exists.".format(DB_NAME))
-    if err.errno == errorcode.ER_BAD_DB_ERROR:
-        create_database(cursor)
-        print("Database {} created successfully.".format(DB_NAME))
-        cnx.database = DB_NAME
-    else:
-        print(err)
-        exit(1)
-
-for table_name in TABLES:
-    table_description = TABLES[table_name]
+def create_table(conn: sqlite3.Connection, create_table_sql: str) -> None:
     try:
-        print("Creating table {}: ".format(table_name), end="")
-        cursor.execute(table_description)
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-            print("already exists.")
-        else:
-            print(err.msg)
-    else:
-        print("OK")
+        cursor = conn.cursor()
+        cursor.execute(create_table_sql)
+        conn.commit()
+    except Error as e:
+        print(e)
 
-cursor.close()
-cnx.close()
+
+def main() -> None:
+    database_name = "physics_revision_app.db"
+
+    sql_create_users_table = """ CREATE TABLE IF NOT EXISTS Users (
+                                        user_id integer PRIMARY KEY,
+                                        username text NOT NULL,
+                                        password text NOT NULL
+                                    ); """
+
+    conn = create_connection(database_name)
+
+    if conn is not None:
+        create_table(conn, sql_create_users_table)
+        conn.close()
+    else:
+        print("Error! cannot create the database connection.")
+
+
+if __name__ == "__main__":
+    main()
