@@ -15,15 +15,19 @@ class PhysicsApp(tk.Frame):
 
     def create_widgets(self):
         self.signUp_login_page = SignUpLoginPage(self, self.auth)
-        self.signUp_login_page.grid(row=0, column=0)
+        self.pack()
+        return
 
 
 def main():
     root = ctk.CTk()
     app = PhysicsApp(master=root)
-    root.title("Physics App")
-    root.state("zoomed")
     app.pack(fill=tk.BOTH, expand=True)
+    root.title("Physics App")
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    tam = "%dx%d" % (width, height)
+    root.geometry(tam)
     root.mainloop()
 
 
