@@ -1,5 +1,7 @@
 import tkinter as tk
-import sv_ttk
+
+import customtkinter as ctk
+
 from physics_app.modules.user_authentication import UserAuthentication
 from physics_app.views.signUp_login_page import SignUpLoginPage
 
@@ -13,16 +15,15 @@ class PhysicsApp(tk.Frame):
 
     def create_widgets(self):
         self.signUp_login_page = SignUpLoginPage(self, self.auth)
-        self.signUp_login_page.pack()
+        self.signUp_login_page.grid(row=0, column=0)
 
 
 def main():
-    root = tk.Tk()
+    root = ctk.CTk()
     app = PhysicsApp(master=root)
     root.title("Physics App")
     root.state("zoomed")
-    sv_ttk.use_light_theme()
-    app.pack(expand=True, fill="both")
+    app.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
 
 

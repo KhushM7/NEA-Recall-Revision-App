@@ -1,0 +1,90 @@
+import tkinter as tk
+from tkinter import ttk
+import customtkinter as ctk
+
+# Apply the Sun Valley theme
+ctk.set_appearance_mode("light")  # Set the theme to light mode
+ctk.set_default_color_theme("blue")  # Set the theme color to blue
+
+# Create the main window
+root = ctk.CTk()
+root.title("Quizlet Sign Up")
+root.geometry("800x400")
+
+# Frame for the left side with image
+left_frame = ctk.CTkFrame(root, width=400, height=400)
+left_frame.grid(row=0, column=0, padx=20, pady=20)
+
+# Add the image to the left frame (using a placeholder for now)
+img = ctk.CTkLabel(left_frame, text="Image Placeholder", width=400, height=400, anchor='center')
+img.pack(padx=10, pady=10)
+
+# Frame for the right side with the form
+right_frame = ctk.CTkFrame(root, width=400, height=400)
+right_frame.grid(row=0, column=1, padx=20, pady=20)
+
+# Form title
+title = ctk.CTkLabel(right_frame, text="Sign up for free", font=ctk.CTkFont(size=20, weight="bold"))
+title.pack(pady=10)
+
+# Birthday label and comboboxes
+birthday_label = ctk.CTkLabel(right_frame, text="Birthday")
+birthday_label.pack(pady=5)
+
+birthday_frame = ctk.CTkFrame(right_frame)
+birthday_frame.pack(pady=5)
+
+months = [str(i) for i in range(1, 13)]
+days = [str(i) for i in range(1, 32)]
+years = [str(i) for i in range(1900, 2025)]
+
+month_cb = ctk.CTkComboBox(birthday_frame, values=months)
+month_cb.grid(row=0, column=0, padx=5)
+
+day_cb = ctk.CTkComboBox(birthday_frame, values=days)
+day_cb.grid(row=0, column=1, padx=5)
+
+year_cb = ctk.CTkComboBox(birthday_frame, values=years)
+year_cb.grid(row=0, column=2, padx=5)
+
+# Email entry
+email_label = ctk.CTkLabel(right_frame, text="Email")
+email_label.pack(pady=5)
+
+email_entry = ctk.CTkEntry(right_frame, placeholder_text="user@email.com")
+email_entry.pack(pady=5)
+
+# Username entry
+username_label = ctk.CTkLabel(right_frame, text="Username")
+username_label.pack(pady=5)
+
+username_entry = ctk.CTkEntry(right_frame, placeholder_text="andrew123")
+username_entry.pack(pady=5)
+
+# Password entry
+password_label = ctk.CTkLabel(right_frame, text="Password")
+password_label.pack(pady=5)
+
+password_entry = ctk.CTkEntry(right_frame, show="*")
+password_entry.pack(pady=5)
+
+# Checkboxes for options
+options_frame = ctk.CTkFrame(right_frame)
+options_frame.pack(pady=10)
+
+reminders_cb = ctk.CTkCheckBox(options_frame, text="I want to receive personalized study reminders and gain access to exclusive discounts and giveaways")
+reminders_cb.pack(anchor="w", pady=2)
+
+terms_cb = ctk.CTkCheckBox(options_frame, text="I accept Quizlet's Terms of Service and Privacy Policy")
+terms_cb.pack(anchor="w", pady=2)
+
+# Sign up button
+signup_button = ctk.CTkButton(right_frame, text="Sign up")
+signup_button.pack(pady=20)
+
+# Login link
+login_label = ctk.CTkLabel(right_frame, text="Already have an account? Log in", fg_color="blue", cursor="hand2")
+login_label.pack(pady=10)
+
+# Run the main loop
+root.mainloop()
