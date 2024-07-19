@@ -24,7 +24,7 @@ class SignUpLoginPage(tk.Frame):
 
         center_frame = ctk.CTkFrame(self.master, fg_color="white")
         center_frame.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
-        center_frame.grid_rowconfigure(0, weight=1)
+        center_frame.grid_rowconfigure(0, weight=0)
         center_frame.grid_rowconfigure(1, weight=1)
         center_frame.grid_columnconfigure(0, weight=1)
 
@@ -59,108 +59,120 @@ class SignUpLoginPage(tk.Frame):
         canvas_for_image.after(100, place_image)
         self.master.after(10, lambda: make_widget_transparent(canvas_for_image))
 
-        notebook = ctk.CTkFrame(center_frame)
-        notebook.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
-        notebook.grid_rowconfigure(0, weight=1)
-        notebook.grid_columnconfigure(0, weight=1)
+        notebook_frame = ctk.CTkFrame(center_frame, fg_color="white")
+        notebook_frame.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        notebook_frame.grid_rowconfigure(0, weight=1)
+        notebook_frame.grid_rowconfigure(1, weight=1)
+        notebook_frame.grid_columnconfigure(0, weight=1)
+        notebook_frame.grid_columnconfigure(1, weight=1)
+        notebook_frame.grid_columnconfigure(2, weight=1)
 
-        self.tab_control = ctk.CTkFrame(notebook)
-        self.tab_control.grid(row=0, column=0, sticky="nsew")
-        self.tab_control.grid_rowconfigure(0, weight=1)
-        self.tab_control.grid_columnconfigure(0, weight=1)
+        self.tab_view = ctk.CTkTabview(notebook_frame, fg_color="#F1F2F3")
+        self.tab_view.grid(row=0, column=1, sticky="nsew")
+        self.tab_view.grid_propagate(False)
 
-        # Sign Up tab
-        self.sign_up_frame = ctk.CTkFrame(self.tab_control)
-        self.sign_up_frame.grid(row=0, column=0, sticky="nsew")
+        self.sign_up_tab = self.tab_view.add(name="Sign Up")
+        self.sign_up_frame = ctk.CTkFrame(self.sign_up_tab, fg_color="#F1F2F3")
+        self.sign_up_frame.grid(row=0, column=1, sticky="nsew")
+        self.tab_view.grid_propagate(False)
+        self.sign_up_tab.grid_rowconfigure(0, weight=1)
+        self.sign_up_tab.grid_columnconfigure(0, weight=1)
         self.create_sign_up_widgets()
 
-        # Login tab
-        self.login_frame = ctk.CTkFrame(self.tab_control)
-        self.login_frame.grid(row=0, column=0, sticky="nsew")
+        self.login_tab = self.tab_view.add("Log In")
+        self.login_frame = ctk.CTkFrame(self.login_tab, fg_color="#F1F2F3")
+        self.login_frame.grid(row=0, column=1, sticky="nsew")
+        self.tab_view.grid_propagate(False)
+        self.login_tab.grid_rowconfigure(0, weight=1)
+        self.login_tab.grid_columnconfigure(0, weight=1)
         self.create_login_widgets()
 
-        self.show_frame(self.sign_up_frame)
-
-        # Tabs
-        tab_frame = ctk.CTkFrame(center_frame)
-        tab_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=(0, 20))
-        tab_frame.grid_columnconfigure(0, weight=1)
-        tab_frame.grid_columnconfigure(1, weight=1)
-
-        sign_up_tab = ctk.CTkButton(
-            tab_frame,
-            text="Sign Up",
-            command=lambda: self.show_frame(self.sign_up_frame),
-        )
-        sign_up_tab.grid(row=0, column=0, sticky="ew")
-
-        login_tab = ctk.CTkButton(
-            tab_frame, text="Log In", command=lambda: self.show_frame(self.login_frame)
-        )
-        login_tab.grid(row=0, column=1, sticky="ew")
-
-    def show_frame(self, frame):
-        frame.tkraise()
-
     def create_sign_up_widgets(self):
+        for i in range(3):
+            self.sign_up_frame.grid_columnconfigure(i, weight=1)
+        for i in range(1, 10):
+            self.sign_up_frame.grid_rowconfigure(i, weight=1)
         self.sign_up_frame.grid(row=0, column=0, sticky="nsew")
 
+        self.sign_up_frame.grid_rowconfigure(index=0, weight=0)
         title = ctk.CTkLabel(
             self.sign_up_frame, text="Sign Up", font=ctk.CTkFont(size=20, weight="bold")
         )
-        title.grid(row=0, column=0, pady=(10, 20), sticky="nsew")
+        title.grid(row=0, column=1, pady=(10, 20), sticky="nsew")
 
         email_label = ctk.CTkLabel(self.sign_up_frame, text="Email")
-        email_label.grid(row=1, column=0, pady=(5, 0), sticky="nsew")
+        email_label.grid(row=1, column=1, sticky="sw")
         email_entry = ctk.CTkEntry(
             self.sign_up_frame, placeholder_text="user@email.com"
         )
-        email_entry.grid(row=2, column=0, pady=(0, 5), sticky="nsew")
+        email_entry.grid(row=2, column=1, sticky="new")
 
         username_label = ctk.CTkLabel(self.sign_up_frame, text="Username")
-        username_label.grid(row=3, column=0, pady=(5, 0), sticky="nsew")
+        username_label.grid(row=3, column=1, sticky="sw")
         username_entry = ctk.CTkEntry(self.sign_up_frame, placeholder_text="username")
-        username_entry.grid(row=4, column=0, pady=(0, 5), sticky="nsew")
+        username_entry.grid(row=4, column=1, sticky="new")
 
         password_label = ctk.CTkLabel(self.sign_up_frame, text="Password")
-        password_label.grid(row=5, column=0, pady=(5, 0), sticky="nsew")
+        password_label.grid(row=5, column=1, sticky="sw")
         password_entry = ctk.CTkEntry(
             self.sign_up_frame, show="*", placeholder_text="*****"
         )
-        password_entry.grid(row=6, column=0, pady=(0, 5), sticky="nsew")
+        password_entry.grid(row=6, column=1, sticky="new")
 
+        # self.sign_up_frame.grid_rowconfigure(index=8, weight=0)
         signup_button = ctk.CTkButton(self.sign_up_frame, text="Sign Up")
-        signup_button.grid(row=8, column=0, pady=(20, 5), sticky="nsew")
+        signup_button.grid(row=8, column=1, sticky="ew")
 
+        # self.sign_up_frame.grid_rowconfigure(index=9, weight=0)
         login_label = ctk.CTkLabel(
-            self.sign_up_frame, text="Already have an account? Log in"
+            self.sign_up_frame,
+            text="Already have an account? Log in",
+            text_color="blue",
+            cursor="hand2",
         )
-        login_label.grid(row=9, column=0, pady=(5, 10), sticky="nsew")
+        login_label.grid(row=9, column=1, sticky="ew")
+        login_label.bind("<Button-1>", lambda e: self.show_frame("Log In"))
 
     def create_login_widgets(self):
+        for i in range(3):
+            self.login_frame.grid_columnconfigure(i, weight=1)
+        for i in range(1, 7):
+            self.login_frame.grid_rowconfigure(i, weight=1)
         self.login_frame.grid(row=0, column=0, sticky="nsew")
 
+        self.login_frame.grid_rowconfigure(index=0, weight=0)
         title = ctk.CTkLabel(
             self.login_frame, text="Log In", font=ctk.CTkFont(size=20, weight="bold")
         )
-        title.grid(row=0, column=0, pady=(10, 20), sticky="nsew")
+        title.grid(row=0, column=1, pady=(10, 20), sticky="nsew")
 
         username_label = ctk.CTkLabel(self.login_frame, text="Username")
-        username_label.grid(row=1, column=0, pady=(5, 0), sticky="nsew")
+        username_label.grid(row=1, column=1, sticky="sw")
         username_entry = ctk.CTkEntry(self.login_frame, placeholder_text="username")
-        username_entry.grid(row=2, column=0, pady=(0, 5), sticky="nsew")
+        username_entry.grid(row=2, column=1, sticky="new")
 
         password_label = ctk.CTkLabel(self.login_frame, text="Password")
-        password_label.grid(row=3, column=0, pady=(5, 0), sticky="nsew")
+        password_label.grid(row=3, column=1, sticky="sw")
+        forgot_password_label = ctk.CTkLabel(self.login_frame, text="Forgot password?")
+        forgot_password_label.grid(row=3, column=1, sticky="se")
         password_entry = ctk.CTkEntry(
             self.login_frame, show="*", placeholder_text="*****"
         )
-        password_entry.grid(row=4, column=0, pady=(0, 5), sticky="nsew")
+        password_entry.grid(row=4, column=1, sticky="new")
 
+        # self.login_frame.grid_rowconfigure(index=5, weight=0)
         login_button = ctk.CTkButton(self.login_frame, text="Log In")
-        login_button.grid(row=5, column=0, pady=(20, 5), sticky="nsew")
+        login_button.grid(row=5, column=1, sticky="ew")
 
+        # self.login_frame.grid_rowconfigure(index=6, weight=0)
         signup_label = ctk.CTkLabel(
-            self.login_frame, text="Don't have an account? Sign up"
+            self.login_frame,
+            text="Don't have an account? Sign up",
+            text_color="blue",
+            cursor="hand2",
         )
-        signup_label.grid(row=6, column=0, pady=(5, 10), sticky="nsew")
+        signup_label.grid(row=6, column=1, sticky="ew")
+        signup_label.bind("<Button-1>", lambda e: self.show_frame("Sign Up"))
+
+    def show_frame(self, tab_name):
+        self.tab_view.set(tab_name)
