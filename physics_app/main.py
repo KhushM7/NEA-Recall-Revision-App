@@ -2,15 +2,17 @@ import tkinter as tk
 
 import customtkinter as ctk
 
-from physics_app.modules.user_authentication import UserAuthentication
 from physics_app.views.signUp_login_page import SignUpLoginPage
+from physics_app.modules.user_authentication import UserAuthentication
 
 
 class PhysicsApp(tk.Frame):
     def __init__(self, master: tk.Tk = None):
         super().__init__(master)
         self.master = master
-        self.auth = UserAuthentication("../data/physics_revision_app.db")
+        self.auth = UserAuthentication(
+            "C:\\Users\\khush\\PycharmProjects\\NEA-Physics-Revision-App\\data\\physics_revision_app.db"
+        )
         self.create_widgets()
 
     def create_widgets(self):

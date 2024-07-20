@@ -27,6 +27,7 @@ def main() -> None:
 
     sql_create_users_table = """ CREATE TABLE IF NOT EXISTS Users (
                                         user_id integer PRIMARY KEY Autoincrement,
+                                        email text NOT NULL,
                                         username text NOT NULL,
                                         password text NOT NULL
                                     ); """

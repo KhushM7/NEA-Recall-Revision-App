@@ -8,7 +8,7 @@ class UserAuthentication:
     def __init__(self, db_path: str):
         self.db_path = db_path
 
-    def insert_user_into_db(self, username: str, password: str):
+    def insert_user_into_db(self, email: str, username: str, password: str):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
@@ -16,8 +16,8 @@ class UserAuthentication:
 
         try:
             cursor.execute(
-                "INSERT INTO Users (username, password) VALUES (?, ?);",
-                (username, hashed_password),
+                "INSERT INTO Users (email, username, password) VALUES (?, ?, ?);",
+                (email, username, hashed_password),
             )
 
             conn.commit()
@@ -26,15 +26,14 @@ class UserAuthentication:
             print("Username already exists!")
         conn.close()
 
-    def confirm_user_details(self, username: str, password: str):
+    def confirm_user_details(self, email_username: str, password: str):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-
-        cursor.execute(
-            "SELECT password FROM Users WHERE username = ?;",
-            (username,),
-        )
-
+        if "@" in email_username:
+            query = "SELECT password FROM Users WHERE email = ?;"
+        else:
+            query = "SELECT password FROM Users WHERE username = ?;"
+        cursor.execute(query, (email_username,))
         user_password = cursor.fetchone()
         conn.close()
 
