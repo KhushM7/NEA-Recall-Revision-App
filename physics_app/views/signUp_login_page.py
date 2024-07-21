@@ -2,7 +2,6 @@ import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 from physics_app.modules.user_authentication import UserAuthentication
-from physics_app.utilities.utilities import make_widget_transparent
 
 
 class SignUpLoginPage(tk.Frame):
@@ -10,89 +9,54 @@ class SignUpLoginPage(tk.Frame):
         super().__init__(master)
         self.master = master
         self.auth = auth
-        self.master.grid_rowconfigure(index=0, weight=1)
-        self.master.grid_rowconfigure(index=1, weight=1)
-        self.master.grid_rowconfigure(index=2, weight=1)
-        self.master.grid_columnconfigure(index=0, weight=1)
-        self.master.grid_columnconfigure(index=1, weight=1)
-        self.master.grid_columnconfigure(index=2, weight=1)
-        self.grid(row=0, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
+        self.configure(bg="white")
+        self.pack(fill=tk.BOTH, expand=True)
         self.create_widgets()
 
     def create_widgets(self):
+        self.setup_appearance()
+        self.setup_center_frame()
+        self.setup_canvas()
+        self.setup_content_frame()
+        self.create_sign_up_widgets()
+        self.create_login_widgets()
+        self.sign_up_frame.tkraise()
+
+    def setup_appearance(self):
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
 
-        center_frame = ctk.CTkFrame(
-            self.master,
-            fg_color="white",
+    def setup_center_frame(self):
+        self.center_frame = ctk.CTkFrame(self.master, fg_color="white")
+        self.center_frame.pack(expand=True, fill=tk.BOTH, anchor="center")
+        self.center_frame.grid_rowconfigure(0, weight=0)
+        self.center_frame.grid_rowconfigure(1, weight=1)
+        self.center_frame.grid_columnconfigure(0, weight=1)
+        self.center_frame.grid_columnconfigure(1, weight=1)
+        self.center_frame.grid_columnconfigure(2, weight=1)
+
+    def setup_canvas(self):
+        self.canvas_for_image = ctk.CTkCanvas(
+            self.center_frame, borderwidth=0, highlightthickness=0, bg="white"
         )
-        center_frame.grid(
-            row=1,
-            column=1,
-        )
-        center_frame.propagate(False)
-        center_frame.grid_rowconfigure(0, weight=0)
-        center_frame.grid_rowconfigure(1, weight=1)
-        center_frame.grid_columnconfigure(0, weight=1)
-        center_frame.grid_columnconfigure(1, weight=1)
-        center_frame.grid_columnconfigure(2, weight=1)
+        self.canvas_for_image.grid(row=0, column=1, sticky="nsew")
+        self.image = Image.open("assets/physics_logo.png")
+        self.canvas_for_image.bind("<Configure>", self.resize_image)
 
-        canvas_for_image = ctk.CTkCanvas(
-            center_frame,
-            height=150,
-            width=850,
-            borderwidth=0,
-            highlightthickness=0,
-            bg="white",
-        )
-        canvas_for_image.grid(row=0, column=1, sticky="n", padx=0, pady=60)
-
-        image = Image.open("assets/physics_logo.png")
-        new_width = 550
-        aspect_ratio = image.height / image.width
-        new_height = int(new_width * aspect_ratio)
-        canvas_for_image.image = ImageTk.PhotoImage(
-            image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-        )
-
-        def place_image():
-            canvas_center_x = int(canvas_for_image.winfo_width() / 2)
-            canvas_center_y = int(canvas_for_image.winfo_height() / 2)
-            canvas_for_image.create_image(
-                canvas_center_x,
-                canvas_center_y,
-                image=canvas_for_image.image,
-                anchor="center",
-            )
-
-        canvas_for_image.after(100, place_image)
-        self.master.after(10, lambda: make_widget_transparent(canvas_for_image))
-
-        notebook_frame = ctk.CTkFrame(
-            center_frame,
-            fg_color="white",
-        )
-        notebook_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
-        notebook_frame.grid_rowconfigure(0, weight=1)
-        notebook_frame.grid_columnconfigure(0, weight=1)
-
-        self.sign_up_frame = ctk.CTkFrame(notebook_frame, fg_color="#F1F2F3")
-        self.sign_up_frame.grid(row=0, column=0, sticky="n")
-
-        self.login_frame = ctk.CTkFrame(notebook_frame, fg_color="#F1F2F3")
-        self.login_frame.grid(row=0, column=0, sticky="n")
-
-        self.create_sign_up_widgets()
-        self.create_login_widgets()
-
-        self.sign_up_frame.tkraise()
+    def setup_content_frame(self):
+        self.content_frame = ctk.CTkFrame(self.center_frame, fg_color="white")
+        self.content_frame.grid(row=1, column=1, sticky="nsew")
+        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.content_frame.grid_columnconfigure(1, weight=1)
+        self.content_frame.grid_columnconfigure(2, weight=1)
+        self.content_frame.grid_propagate(False)
+        self.content_frame.configure(height=400)
 
     def create_sign_up_widgets(self):
-        for i in range(3):
-            self.sign_up_frame.grid_columnconfigure(i, weight=1)
-        for i in range(1, 10):
-            self.sign_up_frame.grid_rowconfigure(i, weight=1)
+        self.sign_up_frame = ctk.CTkFrame(self.content_frame, fg_color="#F1F2F3")
+        self.sign_up_frame.grid(row=0, column=1, sticky="n")
+
+        self.configure_grid(self.sign_up_frame, rows=10, columns=3)
 
         title = ctk.CTkLabel(
             self.sign_up_frame, text="Sign Up", font=ctk.CTkFont(size=20, weight="bold")
@@ -103,34 +67,34 @@ class SignUpLoginPage(tk.Frame):
             self.sign_up_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
         email_label.grid(row=1, column=1, padx=(15, 0), sticky="sw")
-        self.email_entry = ctk.CTkEntry(
+        self.email_entry_sign_up = ctk.CTkEntry(
             self.sign_up_frame, placeholder_text="user@email.com"
         )
-        self.email_entry.grid(row=2, column=1, padx=10, sticky="new")
+        self.email_entry_sign_up.grid(row=2, column=1, padx=10, sticky="new")
 
         username_label = ctk.CTkLabel(
             self.sign_up_frame, text="Username:", font=ctk.CTkFont(size=14)
         )
         username_label.grid(row=3, column=1, padx=(15, 0), pady=(15, 0), sticky="sw")
-        self.username_entry = ctk.CTkEntry(
+        self.username_entry_sign_up = ctk.CTkEntry(
             self.sign_up_frame, placeholder_text="username"
         )
-        self.username_entry.grid(row=4, column=1, padx=10, sticky="new")
+        self.username_entry_sign_up.grid(row=4, column=1, padx=10, sticky="new")
 
         password_label = ctk.CTkLabel(
             self.sign_up_frame, text="Password:", font=ctk.CTkFont(size=14)
         )
         password_label.grid(row=5, column=1, padx=(15, 0), pady=(15, 0), sticky="sw")
-        self.password_entry = ctk.CTkEntry(
+        self.password_entry_sign_up = ctk.CTkEntry(
             self.sign_up_frame, show="*", placeholder_text="*****"
         )
-        self.password_entry.grid(row=6, column=1, padx=10, sticky="new")
+        self.password_entry_sign_up.grid(row=6, column=1, padx=10, sticky="new")
 
         signup_button = ctk.CTkButton(
             self.sign_up_frame,
             text="Sign Up",
             font=ctk.CTkFont(size=14),
-            command=lambda: [self.register_user(), self.show_frame(self.login_frame)],
+            command=self.register_user,
         )
         signup_button.grid(row=8, column=1, padx=10, pady=(20, 0), sticky="ew")
 
@@ -141,20 +105,14 @@ class SignUpLoginPage(tk.Frame):
             cursor="hand2",
             font=ctk.CTkFont(size=14),
         )
-        login_label.grid(
-            row=9,
-            column=1,
-            padx=10,
-            pady=(8, 0),
-            sticky="ew",
-        )
+        login_label.grid(row=9, column=1, padx=10, pady=(8, 0), sticky="ew")
         login_label.bind("<Button-1>", lambda e: self.show_frame(self.login_frame))
 
     def create_login_widgets(self):
-        for i in range(3):
-            self.login_frame.grid_columnconfigure(i, weight=1)
-        for i in range(1, 4):
-            self.login_frame.grid_rowconfigure(i, weight=1)
+        self.login_frame = ctk.CTkFrame(self.content_frame, fg_color="#F1F2F3")
+        self.login_frame.grid(row=0, column=1, sticky="n")
+
+        self.configure_grid(self.login_frame, rows=4, columns=3)
 
         title = ctk.CTkLabel(
             self.login_frame, text="Log In", font=ctk.CTkFont(size=20, weight="bold")
@@ -165,10 +123,10 @@ class SignUpLoginPage(tk.Frame):
             self.login_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
         username_label.grid(row=1, column=1, padx=(15, 0), sticky="sw")
-        self.username_entry = ctk.CTkEntry(
+        self.username_entry_login = ctk.CTkEntry(
             self.login_frame, placeholder_text="Enter your email or username"
         )
-        self.username_entry.grid(row=2, column=1, padx=10, sticky="new")
+        self.username_entry_login.grid(row=2, column=1, padx=10, sticky="new")
 
         password_label = ctk.CTkLabel(
             self.login_frame, text="Password:", font=ctk.CTkFont(size=14)
@@ -182,10 +140,10 @@ class SignUpLoginPage(tk.Frame):
             font=ctk.CTkFont(size=14),
         )
         forgot_password_label.grid(row=3, column=1, padx=10, pady=(15, 0), sticky="se")
-        self.password_entry = ctk.CTkEntry(
+        self.password_entry_login = ctk.CTkEntry(
             self.login_frame, show="*", placeholder_text="*****"
         )
-        self.password_entry.grid(row=4, column=1, padx=10, sticky="new")
+        self.password_entry_login.grid(row=4, column=1, padx=10, sticky="new")
 
         login_button = ctk.CTkButton(
             self.login_frame,
@@ -205,23 +163,57 @@ class SignUpLoginPage(tk.Frame):
         signup_label.grid(row=6, column=1, padx=10, pady=(8, 0), sticky="ew")
         signup_label.bind("<Button-1>", lambda e: self.show_frame(self.sign_up_frame))
 
+    def configure_grid(self, frame, rows, columns):
+        for i in range(columns):
+            frame.grid_columnconfigure(i, weight=1)
+        for i in range(1, rows):
+            frame.grid_rowconfigure(i, weight=1)
+
     def register_user(self):
-        email = self.email_entry.get()
-        username = self.username_entry.get()
-        password = self.password_entry.get()
+        email = self.email_entry_sign_up.get()
+        username = self.username_entry_sign_up.get()
+        password = self.password_entry_sign_up.get()
+        print(f"Email: {email}, Username: {username}, Password: {password}")
         self.auth.insert_user_into_db(email, username, password)
 
     def login_user(self):
-        email_username = self.username_entry.get()
-        password = self.password_entry.get()
+        email_username = self.username_entry_login.get()
+        password = self.password_entry_login.get()
         self.auth.confirm_user_details(email_username, password)
 
     def show_frame(self, frame):
+        self.clear_entries()
         if frame == self.sign_up_frame:
             self.login_frame.grid_forget()
-            self.sign_up_frame.grid(row=0, column=0, padx=10, sticky="n")
+            self.sign_up_frame.grid(row=1, column=1, padx=10, sticky="n")
             self.sign_up_frame.tkraise()
         else:
             self.sign_up_frame.grid_forget()
-            self.login_frame.grid(row=0, column=0, padx=10, sticky="n")
+            self.login_frame.grid(row=1, column=1, padx=10, sticky="n")
             self.login_frame.tkraise()
+
+    def clear_entries(self):
+        entries = [
+            (self.email_entry_sign_up, "user@email.com"),
+            (self.username_entry_sign_up, "username"),
+            (self.password_entry_sign_up, "*****"),
+            (self.username_entry_login, "Enter your email or username"),
+            (self.password_entry_login, "*****"),
+        ]
+        for entry, placeholder in entries:
+            entry.delete(0, tk.END)
+            entry.configure(placeholder_text=placeholder)
+
+    def resize_image(self, event):
+        new_width = int(event.width / 1.5)
+        new_height = int((self.image.height / self.image.width) * new_width)
+        if new_height > event.height:
+            new_height = event.height
+            new_width = int(new_height / (self.image.height / self.image.width))
+        resized_image = self.image.resize(
+            (new_width, new_height), Image.Resampling.LANCZOS
+        )
+        self.image_tk = ImageTk.PhotoImage(resized_image)
+        self.canvas_for_image.create_image(
+            event.width // 2, event.height // 2, image=self.image_tk, anchor="center"
+        )

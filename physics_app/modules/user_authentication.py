@@ -13,7 +13,9 @@ class UserAuthentication:
         cursor = conn.cursor()
 
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-
+        print(
+            f"Inserting into DB: email={email}, username={username}, password={hashed_password}"
+        )
         try:
             cursor.execute(
                 "INSERT INTO Users (email, username, password) VALUES (?, ?, ?);",

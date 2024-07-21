@@ -10,14 +10,12 @@ class PhysicsApp(tk.Frame):
     def __init__(self, master: tk.Tk = None):
         super().__init__(master)
         self.master = master
-        self.auth = UserAuthentication(
-            "C:\\Users\\khush\\PycharmProjects\\NEA-Physics-Revision-App\\data\\physics_revision_app.db"
-        )
+        self.auth = UserAuthentication("data/physics_revision_app.db")
         self.create_widgets()
 
     def create_widgets(self):
         self.signUp_login_page = SignUpLoginPage(self, self.auth)
-        self.pack()
+        self.pack(fill=tk.BOTH, expand=True)
         return
 
 
