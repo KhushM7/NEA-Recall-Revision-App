@@ -49,3 +49,25 @@ class UserAuthentication:
         else:
             print("Username does not exist!")
             return False
+
+    def is_email_taken(self, email: str):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT email FROM Users WHERE email = ?", (email,))
+            fetch = cursor.fetchone()
+            return fetch is not None
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return e
+
+    def is_username_taken(self, username: str):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT username FROM Users WHERE username = ?", (username,))
+            fetch = cursor.fetchone()
+            return fetch is not None
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return e
