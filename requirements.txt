@@ -29,3 +29,4 @@ webencodings==0.5.1
 
 CTkToolTip~=0.8
 pytablericons~=1.0.0
+requests~=2.32.3

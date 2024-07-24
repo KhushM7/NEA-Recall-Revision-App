@@ -1,12 +1,17 @@
 import re
 import tkinter as tk
-from CTkToolTip import *
+
 import customtkinter as ctk
 from PIL import Image, ImageTk
 
 from physics_app.modules.user_authentication import UserAuthentication
 from physics_app.utilities.alert import Alert
-from physics_app.utilities.setup_icons import setup_info_icon
+from physics_app.utilities.setup_icons import (
+    setup_info_icon,
+    setup_error_icon,
+)
+from physics_app.utilities.tooltip import Tooltip
+from physics_app.utilities.utilities import request_verification_code
 
 
 class SignUpLoginPage(tk.Frame):
@@ -14,9 +19,15 @@ class SignUpLoginPage(tk.Frame):
         super().__init__(master)
         self.master = master
         self.auth = auth
-        self.configure(bg="white")
-        self.pack(fill=tk.BOTH, expand=True)
+        self.master.grid_rowconfigure(0, weight=0)
+        self.master.grid_rowconfigure(1, weight=1)
+        self.master.grid_rowconfigure(2, weight=0)
+        self.master.grid_columnconfigure(0, weight=0)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_columnconfigure(2, weight=0)
+        self.master.configure(bg="white")
         self.icon_info, self.icon_info_size = setup_info_icon()
+        self.icon_error, self.icon_error_size = setup_error_icon()
         self.create_widgets()
 
     def create_widgets(self):
@@ -34,10 +45,12 @@ class SignUpLoginPage(tk.Frame):
         ctk.set_default_color_theme("blue")
 
     def setup_center_frame(self):
-        self.center_frame = ctk.CTkFrame(self.master, fg_color="white")
-        self.center_frame.pack(expand=True, fill=tk.BOTH, anchor="center")
-        self.center_frame.grid_rowconfigure(0, weight=0)
-        self.center_frame.grid_rowconfigure(1, weight=1)
+        self.center_frame = ctk.CTkFrame(
+            self.master, height=self.master.winfo_height(), fg_color="white"
+        )
+        self.center_frame.grid(row=1, column=1, sticky="nsew")
+        self.center_frame.grid_rowconfigure(0, weight=1)
+        self.center_frame.grid_rowconfigure(1, weight=2)
         self.center_frame.grid_rowconfigure(2, weight=1)
         self.center_frame.grid_columnconfigure(0, weight=1)
         self.center_frame.grid_columnconfigure(1, weight=1)
@@ -45,28 +58,48 @@ class SignUpLoginPage(tk.Frame):
 
     def setup_canvas(self):
         self.canvas_for_image = ctk.CTkCanvas(
-            self.center_frame, borderwidth=0, highlightthickness=0, bg="white"
+            self.center_frame,
+            height=int(self.master.winfo_screenheight() / 5.5),
+            borderwidth=0,
+            highlightthickness=0,
+            bg="white",
         )
         self.canvas_for_image.grid(row=0, column=1, sticky="nsew")
         self.image = Image.open("assets/physics_logo.png")
         self.canvas_for_image.bind("<Configure>", self.resize_image)
 
     def setup_alert(self):
-        self.alert = Alert(self.center_frame)
-        self.alert.grid(row=2, column=1, padx=10, pady=(20, 0), sticky="new")
+        self.alert = Alert(
+            self.center_frame,
+            title="Error",
+            message="",
+            fg_color="#fdeded",
+            icon=self.icon_error,
+        )
+        self.alert.grid(row=2, column=1, padx=10, sticky="new")
+        self.alert.hide()
 
     def setup_content_frame(self):
-        self.content_frame = ctk.CTkFrame(self.center_frame, fg_color="white")
-        self.content_frame.grid(row=1, column=1, sticky="nsew")
-        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.content_frame = ctk.CTkFrame(
+            self.center_frame,
+            fg_color="white",
+        )
+        self.content_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
+        self.content_frame.grid_rowconfigure(0, weight=0)
+        self.content_frame.grid_rowconfigure(1, weight=1)
+        self.content_frame.grid_rowconfigure(2, weight=0)
+        self.content_frame.grid_columnconfigure(0, weight=0)
         self.content_frame.grid_columnconfigure(1, weight=1)
-        self.content_frame.grid_columnconfigure(2, weight=1)
+        self.content_frame.grid_columnconfigure(2, weight=0)
         self.content_frame.grid_propagate(False)
-        self.content_frame.configure(height=400)
 
     def create_sign_up_widgets(self):
-        self.sign_up_frame = ctk.CTkFrame(self.content_frame, fg_color="#F1F2F3")
-        self.sign_up_frame.grid(row=0, column=1, sticky="n")
+        self.sign_up_frame = ctk.CTkFrame(
+            self.content_frame,
+            height=self.content_frame.winfo_height(),
+            fg_color="#F1F2F3",
+        )
+        self.sign_up_frame.grid(row=1, column=1, sticky="n")
 
         self.configure_grid(self.sign_up_frame, rows=11, columns=3)
 
@@ -76,7 +109,7 @@ class SignUpLoginPage(tk.Frame):
         title.grid(row=0, column=1, pady=(10, 20), sticky="nsew")
 
         email_label = ctk.CTkLabel(
-            self.sign_up_frame, text="Email:", font=ctk.CTkFont(size=18)
+            self.sign_up_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
         email_label.grid(row=1, column=1, padx=(13, 0), sticky="sw")
         self.email_entry_sign_up = ctk.CTkEntry(
@@ -85,7 +118,7 @@ class SignUpLoginPage(tk.Frame):
         self.email_entry_sign_up.grid(row=2, column=1, padx=10, sticky="new")
 
         username_label = ctk.CTkLabel(
-            self.sign_up_frame, text="Username:", font=ctk.CTkFont(size=18)
+            self.sign_up_frame, text="Username:", font=ctk.CTkFont(size=14)
         )
         username_label.grid(row=3, column=1, padx=(13, 0), pady=(15, 0), sticky="sw")
         self.username_entry_sign_up = ctk.CTkEntry(
@@ -94,7 +127,7 @@ class SignUpLoginPage(tk.Frame):
         self.username_entry_sign_up.grid(row=4, column=1, padx=10, sticky="new")
 
         password_label = ctk.CTkLabel(
-            self.sign_up_frame, text="Password:", font=ctk.CTkFont(size=18)
+            self.sign_up_frame, text="Password:", font=ctk.CTkFont(size=14)
         )
         password_label.grid(row=5, column=1, padx=(13, 0), pady=(15, 0), sticky="sw")
 
@@ -102,17 +135,18 @@ class SignUpLoginPage(tk.Frame):
             self.sign_up_frame, text="", image=self.icon_info
         )
         password_info_label.grid(
-            row=5, column=1, padx=(0, 15), pady=(15, 0), sticky="e"
+            row=5, column=1, padx=(0, 15), pady=(15, 0), sticky="se"
         )
-        password_info_label_tooltip = CTkToolTip(
+
+        password_info_label_tooltip = Tooltip(
             password_info_label,
-            "Length at least 8 characters\n"
+            text="Length at least 8 characters\n"
             "At least one uppercase letter\n"
             "At least one lowercase letter\n"
             "At least one number\n"
             "At least one special character",
+            hover_delay=175,
         )
-
         self.password_entry_sign_up = ctk.CTkEntry(
             self.sign_up_frame, show="*", placeholder_text="*****"
         )
@@ -121,7 +155,7 @@ class SignUpLoginPage(tk.Frame):
         signup_button = ctk.CTkButton(
             self.sign_up_frame,
             text="Sign Up",
-            font=ctk.CTkFont(size=18),
+            font=ctk.CTkFont(size=14, weight="bold"),
             command=self.register_user,
         )
         signup_button.grid(row=8, column=1, padx=10, pady=(20, 0), sticky="ew")
@@ -131,14 +165,14 @@ class SignUpLoginPage(tk.Frame):
             text="Already have an account? Log in",
             text_color="blue",
             cursor="hand2",
-            font=ctk.CTkFont(size=15),
+            font=ctk.CTkFont(size=14),
         )
         login_label.grid(row=9, column=1, padx=10, pady=(8, 0), sticky="ew")
         login_label.bind("<Button-1>", lambda e: self.show_frame(self.login_frame))
 
     def create_login_widgets(self):
         self.login_frame = ctk.CTkFrame(self.content_frame, fg_color="#F1F2F3")
-        self.login_frame.grid(row=0, column=1, sticky="n")
+        self.login_frame.grid(row=1, column=1, sticky="n")
 
         self.configure_grid(self.login_frame, rows=4, columns=3)
 
@@ -148,7 +182,7 @@ class SignUpLoginPage(tk.Frame):
         title.grid(row=0, column=1, padx=10, pady=(10, 20), sticky="nsew")
 
         username_label = ctk.CTkLabel(
-            self.login_frame, text="Email:", font=ctk.CTkFont(size=18)
+            self.login_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
         username_label.grid(row=1, column=1, padx=(13, 0), sticky="sw")
         self.username_entry_login = ctk.CTkEntry(
@@ -157,7 +191,7 @@ class SignUpLoginPage(tk.Frame):
         self.username_entry_login.grid(row=2, column=1, padx=10, sticky="new")
 
         password_label = ctk.CTkLabel(
-            self.login_frame, text="Password:", font=ctk.CTkFont(size=18)
+            self.login_frame, text="Password:", font=ctk.CTkFont(size=14)
         )
         password_label.grid(row=3, column=1, padx=(13, 0), pady=(15, 0), sticky="sw")
         forgot_password_label = ctk.CTkLabel(
@@ -165,9 +199,13 @@ class SignUpLoginPage(tk.Frame):
             text="Forgot password?",
             text_color="blue",
             cursor="hand2",
-            font=ctk.CTkFont(size=15),
+            font=ctk.CTkFont(size=14),
         )
-        forgot_password_label.grid(row=5, column=1, padx=(0, 13), sticky="ne")
+        forgot_password_label.grid(row=5, column=1, padx=(0, 13), sticky="se")
+        forgot_password_label.bind(
+            "<Button-1>", lambda e: self.forgot_password_widgets()
+        )
+
         self.password_entry_login = ctk.CTkEntry(
             self.login_frame, show="*", placeholder_text="*****"
         )
@@ -176,7 +214,7 @@ class SignUpLoginPage(tk.Frame):
         login_button = ctk.CTkButton(
             self.login_frame,
             text="Log In",
-            font=ctk.CTkFont(size=18),
+            font=ctk.CTkFont(size=14, weight="bold"),
             command=self.login_user,
         )
         login_button.grid(row=6, column=1, padx=10, pady=(20, 0), sticky="ew")
@@ -186,10 +224,39 @@ class SignUpLoginPage(tk.Frame):
             text="Don't have an account? Sign up",
             text_color="blue",
             cursor="hand2",
-            font=ctk.CTkFont(size=15),
+            font=ctk.CTkFont(size=14),
         )
         signup_label.grid(row=7, column=1, padx=10, pady=(8, 0), sticky="ew")
         signup_label.bind("<Button-1>", lambda e: self.show_frame(self.sign_up_frame))
+
+    def forgot_password_widgets(self):
+        forgot_password_window = ctk.CTkToplevel(self.master)
+        forgot_password_window.attributes("-topmost", True)
+        forgot_password_window.configure(
+            width=self.content_frame.winfo_width(),
+            height=self.content_frame.winfo_height(),
+        )
+        forgot_password_window.rowconfigure(0, weight=1)
+        forgot_password_window.columnconfigure(0, weight=1)
+        verify_email_frame = ctk.CTkFrame(forgot_password_window, fg_color="#F1F2F3")
+        verify_email_frame.grid(row=0, column=0, sticky="nsew")
+        self.configure_grid(verify_email_frame, rows=3, columns=1)
+        email_label = ctk.CTkLabel(
+            verify_email_frame, text="Email:", font=ctk.CTkFont(size=18)
+        )
+        email_label.grid(row=0, column=0, padx=(13, 0), sticky="sw")
+        self.email_entry_forgot_password = ctk.CTkEntry(
+            verify_email_frame, placeholder_text="user@email.com"
+        )
+        self.email_entry_forgot_password.grid(row=1, column=0, padx=10, sticky="new")
+        verify_button = ctk.CTkButton(
+            verify_email_frame,
+            text="Send Verification Code",
+            font=ctk.CTkFont(size=18),
+            command=print("HI"),
+        )
+        verify_button.grid(row=2, column=0, padx=10, pady=(20, 0), sticky="ew")
+        return
 
     def configure_grid(self, frame, rows, columns):
         for i in range(columns):
@@ -225,12 +292,11 @@ class SignUpLoginPage(tk.Frame):
             error_messages.append("Username is already taken.")
 
         if error_messages:
-            self.alert.show(
-                message="\n".join(error_messages),
-                bg_color="red",
-                text_color="white",
-                font=ctk.CTkFont(size=12),
+            self.alert.update_text(
+                new_title="Error",
+                new_message="\n".join(error_messages),
             )
+            self.alert.show(row=2, column=1, padx=10, sticky="new")
             return
         self.alert.hide()
         self.auth.insert_user_into_db(email, username, password)
@@ -248,21 +314,25 @@ class SignUpLoginPage(tk.Frame):
             error_messages.append("Password cannot be empty.")
 
         if error_messages:
-            for message in error_messages:
-                print(message)
+            self.alert.update_text(
+                new_title="Error",
+                new_message="\n".join(error_messages),
+            )
+            self.alert.show(row=2, column=1, padx=10, sticky="new")
             return
-
+        self.alert.hide()
         self.auth.confirm_user_details(email_username, password)
 
     def show_frame(self, frame):
         self.clear_entries()
         if frame == self.sign_up_frame:
             self.login_frame.grid_forget()
-            self.sign_up_frame.grid(row=1, column=1, padx=10, sticky="n")
+            self.sign_up_frame.grid(row=1, column=1, sticky="n")
             self.sign_up_frame.tkraise()
         else:
+            self.alert.hide()
             self.sign_up_frame.grid_forget()
-            self.login_frame.grid(row=1, column=1, padx=10, sticky="n")
+            self.login_frame.grid(row=1, column=1, sticky="n")
             self.login_frame.tkraise()
 
     def clear_entries(self):

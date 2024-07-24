@@ -1,23 +1,86 @@
 import customtkinter as ctk
+from physics_app.utilities.setup_icons import setup_close_icon
 
 
 class Alert(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.message_label = ctk.CTkLabel(self)
-        self.message_label.grid(row=0, column=0, padx=10, pady=10)
-        self.grid_remove()
+    def __init__(
+        self,
+        master=None,
+        title="",
+        message="",
+        title_font=None,
+        message_font=None,
+        title_color="#000000",
+        message_color="#000000",
+        fg_color="#FFFFFF",
+        icon=None,
+        width=300,
+        height=150,
+        **kwargs
+    ):
+        super().__init__(
+            master, width=width, height=height, fg_color=fg_color, **kwargs
+        )
+        self.title = title
+        self.close_icon, self.close_icon_size = setup_close_icon()
 
-    def show(self, message, bg_color=None, text_color=None, font=None):
-        if bg_color:
-            self.configure(bg_color=bg_color)
-        if text_color:
-            self.message_label.configure(text_color=text_color)
-        if font:
-            self.message_label.configure(font=font)
+        if title_font is None:
+            title_font = ctk.CTkFont(size=14, weight="bold")
+        if message_font is None:
+            message_font = ctk.CTkFont(size=12, weight="normal")
 
-        self.message_label.configure(text=message)
-        self.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        self.title_label = ctk.CTkLabel(
+            self,
+            text=self.title,
+            text_color=title_color,
+            font=title_font,
+            fg_color=fg_color,
+            anchor="w",
+        )
+        self.title_label.grid(row=0, column=1, padx=(10, 0), pady=(10, 0), sticky="w")
+        print(width, self.close_icon_size)
+        print(width - (self.close_icon_size))
+        self.message_label = ctk.CTkLabel(
+            self,
+            text=message,
+            text_color=message_color,
+            font=message_font,
+            fg_color=fg_color,
+            justify="left",
+            anchor="w",
+        )
+        self.message_label.grid(
+            row=1, column=1, padx=(10, 0), pady=(0, 10), sticky="ew"
+        )
+
+        if icon:
+            self.icon = ctk.CTkLabel(self, image=icon, fg_color=fg_color, text="")
+            self.icon.grid(row=0, column=0, padx=(10, 0), pady=(10, 0), sticky="nw")
+
+        self.button = ctk.CTkButton(
+            self,
+            text="",
+            image=self.close_icon,
+            width=self.close_icon_size,
+            fg_color=fg_color,
+            hover=False,
+            command=self.hide,
+        )
+        self.button.grid(row=0, column=2, padx=(0, 10), pady=(10, 0), sticky="ne")
+
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=0)
+
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=1)
+
+    def show(self, row=0, column=0, padx=10, pady=None, sticky="nsew"):
+        self.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
 
     def hide(self):
-        self.grid_remove()
+        self.grid_forget()
+
+    def update_text(self, new_title, new_message):
+        self.title_label.configure(text=new_title)
+        self.message_label.configure(text=new_message)
