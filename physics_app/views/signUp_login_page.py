@@ -185,10 +185,10 @@ class SignUpLoginPage(tk.Frame):
             self.login_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
         username_label.grid(row=1, column=1, padx=(13, 0), sticky="sw")
-        self.username_entry_login = ctk.CTkEntry(
+        self.email_entry_login = ctk.CTkEntry(
             self.login_frame, placeholder_text="Enter your email or username"
         )
-        self.username_entry_login.grid(row=2, column=1, padx=10, sticky="new")
+        self.email_entry_login.grid(row=2, column=1, padx=10, sticky="new")
 
         password_label = ctk.CTkLabel(
             self.login_frame, text="Password:", font=ctk.CTkFont(size=14)
@@ -246,14 +246,17 @@ class SignUpLoginPage(tk.Frame):
         )
         email_label.grid(row=0, column=0, padx=(13, 0), sticky="sw")
         self.email_entry_forgot_password = ctk.CTkEntry(
-            verify_email_frame, placeholder_text="user@email.com"
+            verify_email_frame,
         )
         self.email_entry_forgot_password.grid(row=1, column=0, padx=10, sticky="new")
+        self.email_entry_forgot_password.insert(
+            0, self.email_entry_login.get() if self.email_entry_login.get() else ""
+        )
         verify_button = ctk.CTkButton(
             verify_email_frame,
             text="Send Verification Code",
             font=ctk.CTkFont(size=18),
-            command=print("HI"),
+            command=request_verification_code,
         )
         verify_button.grid(row=2, column=0, padx=10, pady=(20, 0), sticky="ew")
         return
@@ -300,9 +303,10 @@ class SignUpLoginPage(tk.Frame):
             return
         self.alert.hide()
         self.auth.insert_user_into_db(email, username, password)
+        self.show_frame(self.login_frame)
 
     def login_user(self):
-        email_username = self.username_entry_login.get()
+        email_username = self.email_entry_login.get()
         password = self.password_entry_login.get()
 
         error_messages = []
@@ -340,7 +344,7 @@ class SignUpLoginPage(tk.Frame):
             (self.email_entry_sign_up, "user@email.com"),
             (self.username_entry_sign_up, "username"),
             (self.password_entry_sign_up, "*****"),
-            (self.username_entry_login, "Enter your email or username"),
+            (self.email_entry_login, "Enter your email or username"),
             (self.password_entry_login, "*****"),
         ]
         for entry, placeholder in entries:
