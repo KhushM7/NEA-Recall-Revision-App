@@ -3,6 +3,7 @@ import threading
 import tkinter as tk
 
 import customtkinter as ctk
+import requests
 from PIL import Image, ImageTk
 
 from physics_app.modules.user_authentication import UserAuthentication
@@ -12,7 +13,10 @@ from physics_app.utilities.setup_icons import (
     setup_error_icon,
 )
 from physics_app.utilities.tooltip import Tooltip
-from physics_app.utilities.utilities import request_verification_code
+from physics_app.utilities.utilities import (
+    request_verification_code,
+    request_verify_otp,
+)
 
 
 class SignUpLoginPage(tk.Frame):
@@ -349,39 +353,51 @@ class SignUpLoginPage(tk.Frame):
         )
         submit_button.grid(row=4, column=0, padx=10, pady=(20, 0), sticky="ew")
 
-        resend_label = ctk.CTkLabel(
+        self.resend_label = ctk.CTkLabel(
             self.enter_code_frame,
             text="Resend Email",
             text_color="blue",
             cursor="hand2",
             font=ctk.CTkFont(size=14),
         )
-        resend_label.grid(row=5, column=0, padx=10, pady=(10, 0), sticky="ew")
-        resend_label.bind("<Button-1>", lambda e: self.resend_verification_code())
+        self.resend_label.grid(row=5, column=0, padx=10, pady=(10, 0), sticky="ew")
+        self.resend_label.bind("<Button-1>", lambda e: self.resend_verification_code())
 
     def on_send_code_click(self):
         email = self.email_entry_forgot_password.get().strip()
-        # request_verification_code(email)
-        self.enter_code_frame.tkraise()
-        self.start_timer()
+        if not email or not self.auth.is_email_taken(email):
+            print("Error", "Please enter your email address.")
+            return
+
+        if request_verification_code(email):
+            self.enter_code_frame.tkraise()
+            self.start_timer()
 
     def on_submit_code_click(self):
+        email = self.email_entry_forgot_password.get().strip()
         code = self.code_entry.get().strip()
-        if code:
-            print("Code submitted:", code)
-            # Add further logic here
+        if not code:
+            print("Error", "Please enter the verification code.")
+            return
+
+        if request_verify_otp(email, code):
+            print("Success", "Verification successful!")
+            # self.reset_password_frame.tkraise()  # Navigate to the password reset frame or next step
 
     def resend_verification_code(self):
-        # email = self.email_entry_forgot_password.get().strip()
-        # request_verification_code(email)
         self.send_code_frame.tkraise()
         self.start_timer()
 
     def start_timer(self):
-        self.time_left = 30
+        self.time_left = 60
+        self.resend_label.configure(text_color="grey", cursor="arrow")
+        self.resend_label.unbind("<Button-1>")  # Disable clicking functionality
         self.update_timer()
 
     def update_timer(self):
+        if hasattr(self, "timer") and self.timer:
+            self.timer.cancel()  # Cancel any existing timer to prevent overlap
+
         if self.time_left > 0:
             self.timer_label.configure(text=f"Resend code in {self.time_left} seconds")
             self.time_left -= 1
@@ -389,6 +405,10 @@ class SignUpLoginPage(tk.Frame):
             self.timer.start()
         else:
             self.timer_label.configure(text="You can resend the code now")
+            self.resend_label.configure(text_color="blue", cursor="hand2")
+            self.resend_label.bind(
+                "<Button-1>", lambda e: self.resend_verification_code()
+            )  # Re-enable clicking
 
     def configure_grid(self, frame, rows, columns):
         for i in range(columns):
