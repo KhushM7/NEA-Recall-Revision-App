@@ -1,4 +1,5 @@
 import re
+import threading
 import tkinter as tk
 
 import customtkinter as ctk
@@ -230,36 +231,164 @@ class SignUpLoginPage(tk.Frame):
         signup_label.bind("<Button-1>", lambda e: self.show_frame(self.sign_up_frame))
 
     def forgot_password_widgets(self):
-        forgot_password_window = ctk.CTkToplevel(self.master)
-        forgot_password_window.attributes("-topmost", True)
-        forgot_password_window.configure(
-            width=self.content_frame.winfo_width(),
-            height=self.content_frame.winfo_height(),
+        # Get the position and size of the root window
+        root_x = self.master.winfo_rootx()
+        root_y = self.master.winfo_rooty()
+        root_width = self.master.winfo_width()
+        root_height = self.master.winfo_height()
+
+        # Calculate the center position of the screen
+        center_x = root_x + (root_width // 2)
+        center_y = root_y + (root_height // 2)
+
+        # Create the forgot password window and set its position
+        self.forgot_password_window = ctk.CTkToplevel(self.master)
+        self.forgot_password_window.attributes("-topmost", 1)
+        self.forgot_password_window.title("Forgot Password")
+
+        # Set the geometry to center the window on the monitor
+        self.forgot_password_window.geometry(f"+{center_x}+{center_y}")
+
+        # Rest of your forgot password UI code...
+
+        self.forgot_password_center_frame = ctk.CTkFrame(
+            self.forgot_password_window, fg_color="#F1F2F3"
         )
-        forgot_password_window.rowconfigure(0, weight=1)
-        forgot_password_window.columnconfigure(0, weight=1)
-        verify_email_frame = ctk.CTkFrame(forgot_password_window, fg_color="#F1F2F3")
-        verify_email_frame.grid(row=0, column=0, sticky="nsew")
-        self.configure_grid(verify_email_frame, rows=3, columns=1)
+        self.forgot_password_center_frame.grid(row=0, column=0, sticky="nsew")
+        self.forgot_password_center_frame.grid(row=0, column=0, sticky="nsew")
+        self.forgot_password_center_frame.grid_rowconfigure(0, weight=1)
+        self.forgot_password_center_frame.grid_rowconfigure(1, weight=2)
+        self.forgot_password_center_frame.grid_rowconfigure(2, weight=1)
+        self.forgot_password_center_frame.grid_columnconfigure(0, weight=1)
+        self.forgot_password_center_frame.grid_columnconfigure(1, weight=1)
+        self.forgot_password_center_frame.grid_columnconfigure(2, weight=1)
+
+        self.create_send_code_frame()
+
+        self.create_enter_code_frame()
+
+        self.send_code_frame.tkraise()
+
+    def create_send_code_frame(self):
+        self.send_code_frame = ctk.CTkFrame(
+            self.forgot_password_center_frame, fg_color="#F1F2F3"
+        )
+        self.send_code_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
+        self.configure_grid(self.send_code_frame, rows=5, columns=0)
+
+        title = ctk.CTkLabel(
+            self.send_code_frame,
+            text="Reset your password",
+            font=ctk.CTkFont(size=24, weight="bold"),
+        )
+        title.grid(row=0, column=0, padx=10, pady=(10, 20), sticky="nsew")
+        message = ctk.CTkLabel(
+            self.send_code_frame,
+            text="Enter the email you signed up with. We'll send you a one time code to enter to reset your password.",
+            wraplength=240,
+            font=ctk.CTkFont(size=14),
+        )
+        message.grid(row=1, column=0, padx=5, sticky="nsew")
+
         email_label = ctk.CTkLabel(
-            verify_email_frame, text="Email:", font=ctk.CTkFont(size=18)
+            self.send_code_frame, text="Email:", font=ctk.CTkFont(size=14)
         )
-        email_label.grid(row=0, column=0, padx=(13, 0), sticky="sw")
+        email_label.grid(row=2, column=0, padx=(13, 0), sticky="sw")
+
         self.email_entry_forgot_password = ctk.CTkEntry(
-            verify_email_frame,
+            self.send_code_frame,
         )
-        self.email_entry_forgot_password.grid(row=1, column=0, padx=10, sticky="new")
+        self.email_entry_forgot_password.grid(row=3, column=0, padx=10, sticky="new")
         self.email_entry_forgot_password.insert(
             0, self.email_entry_login.get() if self.email_entry_login.get() else ""
         )
+
         verify_button = ctk.CTkButton(
-            verify_email_frame,
+            self.send_code_frame,
             text="Send Verification Code",
-            font=ctk.CTkFont(size=18),
-            command=request_verification_code,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            command=self.on_send_code_click,
         )
-        verify_button.grid(row=2, column=0, padx=10, pady=(20, 0), sticky="ew")
-        return
+        verify_button.grid(row=4, column=0, padx=10, pady=(20, 0), sticky="ew")
+
+    def create_enter_code_frame(self):
+        self.enter_code_frame = ctk.CTkFrame(
+            self.forgot_password_center_frame, fg_color="#F1F2F3"
+        )
+        self.enter_code_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
+        self.configure_grid(self.enter_code_frame, rows=6, columns=0)
+
+        title = ctk.CTkLabel(
+            self.enter_code_frame,
+            text="Reset your password",
+            font=ctk.CTkFont(size=24, weight="bold"),
+        )
+        title.grid(row=0, column=0, padx=10, pady=(10, 20), sticky="nsew")
+        code_label = ctk.CTkLabel(
+            self.enter_code_frame,
+            text="Enter Verification Code:",
+            font=ctk.CTkFont(size=14),
+        )
+        code_label.grid(row=1, column=0, padx=(13, 0), sticky="sw")
+
+        self.code_entry = ctk.CTkEntry(
+            self.enter_code_frame,
+        )
+        self.code_entry.grid(row=2, column=0, padx=10, sticky="new")
+
+        self.timer_label = ctk.CTkLabel(
+            self.enter_code_frame, text="", font=ctk.CTkFont(size=14)
+        )
+        self.timer_label.grid(row=3, column=0, padx=10, pady=(10, 0), sticky="ew")
+
+        submit_button = ctk.CTkButton(
+            self.enter_code_frame,
+            text="Submit",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            command=self.on_submit_code_click,
+        )
+        submit_button.grid(row=4, column=0, padx=10, pady=(20, 0), sticky="ew")
+
+        resend_label = ctk.CTkLabel(
+            self.enter_code_frame,
+            text="Resend Email",
+            text_color="blue",
+            cursor="hand2",
+            font=ctk.CTkFont(size=14),
+        )
+        resend_label.grid(row=5, column=0, padx=10, pady=(10, 0), sticky="ew")
+        resend_label.bind("<Button-1>", lambda e: self.resend_verification_code())
+
+    def on_send_code_click(self):
+        email = self.email_entry_forgot_password.get().strip()
+        # request_verification_code(email)
+        self.enter_code_frame.tkraise()
+        self.start_timer()
+
+    def on_submit_code_click(self):
+        code = self.code_entry.get().strip()
+        if code:
+            print("Code submitted:", code)
+            # Add further logic here
+
+    def resend_verification_code(self):
+        # email = self.email_entry_forgot_password.get().strip()
+        # request_verification_code(email)
+        self.send_code_frame.tkraise()
+        self.start_timer()
+
+    def start_timer(self):
+        self.time_left = 30
+        self.update_timer()
+
+    def update_timer(self):
+        if self.time_left > 0:
+            self.timer_label.configure(text=f"Resend code in {self.time_left} seconds")
+            self.time_left -= 1
+            self.timer = threading.Timer(1.0, self.update_timer)
+            self.timer.start()
+        else:
+            self.timer_label.configure(text="You can resend the code now")
 
     def configure_grid(self, frame, rows, columns):
         for i in range(columns):
