@@ -42,12 +42,28 @@ class UserAuthentication:
         if user_password:
             if bcrypt.checkpw(password.encode("utf-8"), user_password[0]):
                 print("Login successful!")
-                return True
+                return True, None
             else:
-                print("Incorrect password!")
-                return False
+                return False, "Incorrect password!"
         else:
-            print("Username does not exist!")
+            return False, "Username does not exist!"
+
+    def update_password(self, email, new_password):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            hashed_password = bcrypt.hashpw(
+                new_password.encode("utf-8"), bcrypt.gensalt()
+            )
+            cursor.execute(
+                "UPDATE Users SET password = ? WHERE email = ?",
+                (hashed_password, email),
+            )
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"Failed to update password: {e}")
             return False
 
     def is_email_taken(self, email: str):

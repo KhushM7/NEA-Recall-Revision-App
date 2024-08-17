@@ -271,6 +271,8 @@ class SignUpLoginPage(tk.Frame):
 
         self.create_enter_code_frame()
 
+        self.create_reset_password_frame()
+
         self.send_code_frame.tkraise()
 
     def create_send_code_frame(self):
@@ -278,7 +280,7 @@ class SignUpLoginPage(tk.Frame):
             self.forgot_password_center_frame, fg_color="#F1F2F3"
         )
         self.send_code_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
-        self.configure_grid(self.send_code_frame, rows=5, columns=0)
+        self.configure_grid(self.send_code_frame, rows=6, columns=0)
 
         title = ctk.CTkLabel(
             self.send_code_frame,
@@ -302,10 +304,20 @@ class SignUpLoginPage(tk.Frame):
         self.email_entry_forgot_password = ctk.CTkEntry(
             self.send_code_frame,
         )
-        self.email_entry_forgot_password.grid(row=3, column=0, padx=10, sticky="new")
+        self.email_entry_forgot_password.grid(
+            row=3, column=0, padx=10, pady=0, sticky="new"
+        )
         self.email_entry_forgot_password.insert(
             0, self.email_entry_login.get() if self.email_entry_login.get() else ""
         )
+
+        self.error_label = ctk.CTkLabel(  # Error label added
+            self.send_code_frame,
+            text="",
+            text_color="red",
+            font=ctk.CTkFont(size=12),
+        )
+        self.error_label.grid(row=4, column=0, padx=10, pady=(0, 0), sticky="nw")
 
         verify_button = ctk.CTkButton(
             self.send_code_frame,
@@ -313,14 +325,16 @@ class SignUpLoginPage(tk.Frame):
             font=ctk.CTkFont(size=14, weight="bold"),
             command=self.on_send_code_click,
         )
-        verify_button.grid(row=4, column=0, padx=10, pady=(20, 0), sticky="ew")
+        verify_button.grid(row=5, column=0, padx=10, pady=(20, 0), sticky="ew")
 
     def create_enter_code_frame(self):
         self.enter_code_frame = ctk.CTkFrame(
             self.forgot_password_center_frame, fg_color="#F1F2F3"
         )
         self.enter_code_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
-        self.configure_grid(self.enter_code_frame, rows=6, columns=0)
+        self.configure_grid(
+            self.enter_code_frame, rows=7, columns=0
+        )  # Adjusted rows to 7
 
         title = ctk.CTkLabel(
             self.enter_code_frame,
@@ -328,6 +342,7 @@ class SignUpLoginPage(tk.Frame):
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title.grid(row=0, column=0, padx=10, pady=(10, 20), sticky="nsew")
+
         code_label = ctk.CTkLabel(
             self.enter_code_frame,
             text="Enter Verification Code:",
@@ -335,15 +350,21 @@ class SignUpLoginPage(tk.Frame):
         )
         code_label.grid(row=1, column=0, padx=(13, 0), sticky="sw")
 
-        self.code_entry = ctk.CTkEntry(
-            self.enter_code_frame,
-        )
+        self.code_entry = ctk.CTkEntry(self.enter_code_frame)
         self.code_entry.grid(row=2, column=0, padx=10, sticky="new")
+
+        self.error_label_otp = ctk.CTkLabel(  # Error label added
+            self.enter_code_frame,
+            text="",
+            text_color="red",
+            font=ctk.CTkFont(size=12),
+        )
+        self.error_label_otp.grid(row=3, column=0, padx=10, pady=(5, 0), sticky="nw")
 
         self.timer_label = ctk.CTkLabel(
             self.enter_code_frame, text="", font=ctk.CTkFont(size=14)
         )
-        self.timer_label.grid(row=3, column=0, padx=10, pady=(10, 0), sticky="ew")
+        self.timer_label.grid(row=4, column=0, padx=10, pady=(10, 0), sticky="ew")
 
         submit_button = ctk.CTkButton(
             self.enter_code_frame,
@@ -351,7 +372,7 @@ class SignUpLoginPage(tk.Frame):
             font=ctk.CTkFont(size=14, weight="bold"),
             command=self.on_submit_code_click,
         )
-        submit_button.grid(row=4, column=0, padx=10, pady=(20, 0), sticky="ew")
+        submit_button.grid(row=5, column=0, padx=10, pady=(20, 0), sticky="ew")
 
         self.resend_label = ctk.CTkLabel(
             self.enter_code_frame,
@@ -360,13 +381,97 @@ class SignUpLoginPage(tk.Frame):
             cursor="hand2",
             font=ctk.CTkFont(size=14),
         )
-        self.resend_label.grid(row=5, column=0, padx=10, pady=(10, 0), sticky="ew")
+        self.resend_label.grid(row=6, column=0, padx=10, pady=(10, 0), sticky="ew")
         self.resend_label.bind("<Button-1>", lambda e: self.resend_verification_code())
+
+    def create_reset_password_frame(self):
+        self.reset_password_frame = ctk.CTkFrame(
+            self.forgot_password_center_frame, fg_color="#F1F2F3"
+        )
+        self.reset_password_frame.grid(row=1, column=1, pady=(20, 20), sticky="nsew")
+        self.configure_grid(
+            self.reset_password_frame, rows=8, columns=0
+        )  # Adjusted rows to 8
+
+        title = ctk.CTkLabel(
+            self.reset_password_frame,
+            text="Reset your password",
+            font=ctk.CTkFont(size=24, weight="bold"),
+        )
+        title.grid(row=0, column=0, padx=10, pady=(10, 20), sticky="nsew")
+
+        password_label = ctk.CTkLabel(
+            self.reset_password_frame, text="Enter Password:", font=ctk.CTkFont(size=14)
+        )
+        password_label.grid(row=1, column=0, padx=(13, 0), pady=(15, 0), sticky="sw")
+
+        password_info_label = ctk.CTkLabel(
+            self.reset_password_frame, text="", image=self.icon_info
+        )
+        password_info_label.grid(
+            row=1, column=0, padx=(0, 15), pady=(15, 0), sticky="se"
+        )
+
+        password_info_label_tooltip = Tooltip(
+            password_info_label,
+            text="Length at least 8 characters\n"
+            "At least one uppercase letter\n"
+            "At least one lowercase letter\n"
+            "At least one number\n"
+            "At least one special character",
+            hover_delay=175,
+        )
+
+        self.password_entry_forgot_password = ctk.CTkEntry(
+            self.reset_password_frame, show="*", placeholder_text="*****"
+        )
+        self.password_entry_forgot_password.grid(row=2, column=0, padx=10, sticky="new")
+
+        confirm_password_label = ctk.CTkLabel(
+            self.reset_password_frame,
+            text="Re-enter Password:",
+            font=ctk.CTkFont(size=14),
+        )
+        confirm_password_label.grid(
+            row=3, column=0, padx=(13, 0), pady=(15, 0), sticky="sw"
+        )
+
+        self.confirm_password_entry_forgot_password = ctk.CTkEntry(
+            self.reset_password_frame, show="*", placeholder_text="*****"
+        )
+        self.confirm_password_entry_forgot_password.grid(
+            row=4, column=0, padx=10, sticky="new"
+        )
+
+        self.error_label_password = ctk.CTkLabel(  # Error label added
+            self.reset_password_frame,
+            text="",
+            text_color="red",
+            font=ctk.CTkFont(size=12),
+        )
+        self.error_label_password.grid(
+            row=5, column=0, padx=10, pady=(5, 0), sticky="nw"
+        )
+
+        reset_button = ctk.CTkButton(
+            self.reset_password_frame,
+            text="Reset Password",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            command=self.on_reset_password,  # Update command
+        )
+        reset_button.grid(row=6, column=0, padx=10, pady=(20, 0), sticky="ew")
 
     def on_send_code_click(self):
         email = self.email_entry_forgot_password.get().strip()
+
+        # Clear any previous error message
+        self.error_label.configure(text="")
+
         if not email or not self.auth.is_email_taken(email):
-            print("Error", "Please enter your email address.")
+            # Display error message if email is not associated with an account
+            self.error_label.configure(
+                text="This email is not associated with any account."
+            )
             return
 
         if request_verification_code(email):
@@ -376,13 +481,52 @@ class SignUpLoginPage(tk.Frame):
     def on_submit_code_click(self):
         email = self.email_entry_forgot_password.get().strip()
         code = self.code_entry.get().strip()
+
+        # Clear any previous error message
+        self.error_label_otp.configure(text="")
+
         if not code:
-            print("Error", "Please enter the verification code.")
+            # Display error message if no code is entered
+            self.error_label_otp.configure(text="Please enter the verification code.")
             return
 
         if request_verify_otp(email, code):
             print("Success", "Verification successful!")
-            # self.reset_password_frame.tkraise()  # Navigate to the password reset frame or next step
+            self.reset_password_frame.tkraise()  # Navigate to the password reset frame or next step
+        else:
+            # Display error message if the code is incorrect
+            self.error_label_otp.configure(
+                text="Invalid verification code. Please try again."
+            )
+
+    def on_reset_password(self):
+        password = self.password_entry_forgot_password.get().strip()
+        confirm_password = self.confirm_password_entry_forgot_password.get().strip()
+
+        # Clear any previous error message
+        self.error_label_password.configure(text="")
+
+        # Validate password
+        if not re.match(
+            r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+=\{\[\]\\|:;'<>/?~]).{8,}$",
+            password,
+        ):
+            self.error_label_password.configure(
+                text="Password does not meet requirements."
+            )
+            return
+
+        # Check if passwords match
+        if password != confirm_password:
+            self.error_label_password.configure(text="Passwords do not match.")
+            return
+
+        # Update password in the database
+        if self.auth.update_password(self.email_entry_forgot_password.get(), password):
+            print("Success", "Password has been updated successfully!")
+            self.forgot_password_window.destroy()
+        else:
+            print("Failed to update password.")
 
     def resend_verification_code(self):
         self.send_code_frame.tkraise()
@@ -399,12 +543,14 @@ class SignUpLoginPage(tk.Frame):
             self.timer.cancel()  # Cancel any existing timer to prevent overlap
 
         if self.time_left > 0:
-            self.timer_label.configure(text=f"Resend code in {self.time_left} seconds")
+            self.timer_label.configure(text=f"Code expires in {self.time_left} seconds")
             self.time_left -= 1
             self.timer = threading.Timer(1.0, self.update_timer)
             self.timer.start()
         else:
-            self.timer_label.configure(text="You can resend the code now")
+            self.timer_label.configure(
+                text="Code has expired. Resend email to get a new code."
+            )
             self.resend_label.configure(text_color="blue", cursor="hand2")
             self.resend_label.bind(
                 "<Button-1>", lambda e: self.resend_verification_code()
@@ -434,7 +580,7 @@ class SignUpLoginPage(tk.Frame):
             password,
         ):
             error_messages.append(
-                "Password must be at least 8 characters long and contain both letters and numbers."
+                "Password must be at least 8 characters long and contain capital and lowercase letters and numbers and a special character."
             )
 
         if self.auth.is_email_taken(email):
@@ -473,8 +619,24 @@ class SignUpLoginPage(tk.Frame):
             )
             self.alert.show(row=2, column=1, padx=10, sticky="new")
             return
+
+        # Hide the alert if there were no validation errors
         self.alert.hide()
-        self.auth.confirm_user_details(email_username, password)
+
+        # Check the user details
+        success, error_message = self.auth.confirm_user_details(
+            email_username, password
+        )
+
+        if not success:
+            self.alert.update_text(
+                new_title="Login Failed",
+                new_message=error_message,
+            )
+            self.alert.show(row=2, column=1, padx=10, sticky="new")
+        else:
+            print("Login successful!")
+            # Continue to the next step in your application
 
     def show_frame(self, frame):
         self.clear_entries()
