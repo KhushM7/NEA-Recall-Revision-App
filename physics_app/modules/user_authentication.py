@@ -1,5 +1,5 @@
 import sqlite3
-
+from typing import Tuple, Optional
 
 import bcrypt
 
@@ -9,6 +9,7 @@ class UserAuthentication:
         self.db_path = db_path
 
     def insert_user_into_db(self, email: str, username: str, password: str):
+        """Inserts a new user into the database and hashes the password."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
@@ -28,7 +29,9 @@ class UserAuthentication:
             print("Username already exists!")
         conn.close()
 
-    def confirm_user_details(self, email_username: str, password: str):
+    def confirm_user_details(
+        self, email_username: str, password: str
+    ) -> Tuple[bool, Optional[str]]:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         if "@" in email_username:
@@ -48,7 +51,7 @@ class UserAuthentication:
         else:
             return False, "Username does not exist!"
 
-    def update_password(self, email, new_password):
+    def update_password(self, email: str, new_password: str) -> bool:
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -66,7 +69,7 @@ class UserAuthentication:
             print(f"Failed to update password: {e}")
             return False
 
-    def is_email_taken(self, email: str):
+    def is_email_taken(self, email: str) -> bool:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         try:
@@ -75,9 +78,11 @@ class UserAuthentication:
             return fetch is not None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
-            return e
+            return False
+        finally:
+            conn.close()
 
-    def is_username_taken(self, username: str):
+    def is_username_taken(self, username: str) -> bool:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         try:
@@ -86,4 +91,6 @@ class UserAuthentication:
             return fetch is not None
         except sqlite3.Error as e:
             print(f"Database error: {e}")
-            return e
+            return False
+        finally:
+            conn.close()

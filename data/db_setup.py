@@ -4,7 +4,6 @@ from typing import Optional
 
 
 def create_connection(db_file_name: str) -> Optional[sqlite3.Connection]:
-    """Create a database connection to database specified by db_file_name"""
     try:
         conn = sqlite3.connect(db_file_name)
         return conn

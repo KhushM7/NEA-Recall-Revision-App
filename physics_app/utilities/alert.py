@@ -24,11 +24,11 @@ class Alert(ctk.CTkFrame):
         self.title = title
         self.close_icon, self.close_icon_size = setup_close_icon()
 
-        if title_font is None:
-            title_font = ctk.CTkFont(size=14, weight="bold")
-        if message_font is None:
-            message_font = ctk.CTkFont(size=12, weight="normal")
+        # Set default fonts if not provided
+        title_font = title_font or ctk.CTkFont(size=14, weight="bold")
+        message_font = message_font or ctk.CTkFont(size=12, weight="normal")
 
+        # Title Label
         self.title_label = ctk.CTkLabel(
             self,
             text=self.title,
@@ -38,8 +38,8 @@ class Alert(ctk.CTkFrame):
             anchor="w",
         )
         self.title_label.grid(row=0, column=1, padx=(10, 0), pady=(10, 0), sticky="w")
-        print(width, self.close_icon_size)
-        print(width - (self.close_icon_size))
+
+        # Message Label
         self.message_label = ctk.CTkLabel(
             self,
             text=message,
@@ -53,10 +53,12 @@ class Alert(ctk.CTkFrame):
             row=1, column=1, padx=(10, 0), pady=(0, 10), sticky="ew"
         )
 
+        # Icon
         if icon:
             self.icon = ctk.CTkLabel(self, image=icon, fg_color=fg_color, text="")
             self.icon.grid(row=0, column=0, padx=(10, 0), pady=(10, 0), sticky="nw")
 
+        # Close Button
         self.button = ctk.CTkButton(
             self,
             text="",
@@ -68,6 +70,7 @@ class Alert(ctk.CTkFrame):
         )
         self.button.grid(row=0, column=2, padx=(0, 10), pady=(10, 0), sticky="ne")
 
+        # Grid configuration
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=0)
@@ -81,6 +84,7 @@ class Alert(ctk.CTkFrame):
     def hide(self):
         self.grid_forget()
 
-    def update_text(self, new_title, new_message):
+    def update_text(self, new_title: str, new_message: str):
+        """Update the title and message text of the alert."""
         self.title_label.configure(text=new_title)
         self.message_label.configure(text=new_message)

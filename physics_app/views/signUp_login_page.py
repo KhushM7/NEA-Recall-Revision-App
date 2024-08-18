@@ -3,7 +3,6 @@ import threading
 import tkinter as tk
 
 import customtkinter as ctk
-import requests
 from PIL import Image, ImageTk
 
 from physics_app.modules.user_authentication import UserAuthentication
