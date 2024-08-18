@@ -1,48 +1,47 @@
-import requests
-from typing import Dict, Any
-
-SERVER_URL = "http://127.0.0.1:5000"
-SEND_VERIFICATION_CODE_ENDPOINT = "/send_verification_code"
-VERIFY_OTP_ENDPOINT = "/verify_otp"
+import customtkinter as ctk
+from PIL import Image, ImageTk
+from typing import Tuple, Optional
 
 
-def make_request(endpoint: str, payload: Dict[str, Any]) -> bool:
+def configure_grid(frame: ctk.CTkFrame, rows: int, columns: int) -> None:
+    """Configures grid layout for a given frame.
+    :rtype: object
     """
-    Helper function to make a POST request and handle errors.
+    for i in range(rows):
+        frame.grid_rowconfigure(i, weight=1)
+    for i in range(columns):
+        frame.grid_columnconfigure(i, weight=1)
 
-    :param endpoint: The API endpoint to hit.
-    :param payload: The data to send in the request.
-    :return: True if the request was successful, False otherwise.
+
+def resize_and_update_image(
+    image: Image.Image,
+    canvas: ctk.CTkCanvas,
+    canvas_size: Tuple[int, int],
+    scale_factor: float = 1.5,
+) -> None:
     """
-    try:
-        response = requests.post(SERVER_URL + endpoint, json=payload)
-        if response.status_code == 200:
-            return True
-        else:
-            error_message = response.json().get("error", "Unknown error occurred.")
-            print(f"Error: {error_message}")
-            return False
-    except requests.RequestException as e:
-        print(f"Error: An error occurred: {e}")
-        return False
+    Resize an image to fit within the canvas size while maintaining aspect ratio,
+    and update the canvas with the resized image.
 
-
-def request_verification_code(email: str) -> bool:
+    :param image: The original PIL Image to resize.
+    :param canvas: The canvas widget to display the image.
+    :param canvas_size: The size (width, height) of the canvas.
+    :param scale_factor: Factor to scale down the width of the image.
     """
-    Request a verification code for the given email.
+    width, height = canvas_size
+    new_width = int(width / scale_factor)
+    new_height = int((image.height / image.width) * new_width)
 
-    :param email: The email address to request the verification code for.
-    :return: True if the verification code was sent successfully, False otherwise.
-    """
-    return make_request(SEND_VERIFICATION_CODE_ENDPOINT, {"email": email})
+    if new_height > height:
+        new_height = height
+        new_width = int(new_height / (image.height / image.width))
 
+    resized_image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    image_tk = ImageTk.PhotoImage(resized_image)
 
-def request_verify_otp(email: str, otp: str) -> bool:
-    """
-    Verify the OTP for the given email.
+    # Clear the canvas and update with the resized image
+    canvas.delete("all")
+    canvas.create_image(width // 2, height // 2, image=image_tk, anchor="center")
 
-    :param email: The email address associated with the OTP.
-    :param otp: The OTP to verify.
-    :return: True if the OTP was verified successfully, False otherwise.
-    """
-    return make_request(VERIFY_OTP_ENDPOINT, {"email": email, "otp": otp})
+    # Keep a reference to avoid garbage collection
+    canvas.image_tk = image_tk
