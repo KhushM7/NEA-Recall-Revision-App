@@ -4,7 +4,7 @@ import tkinter as tk
 import customtkinter as ctk
 from PIL import Image
 
-from physics_app.modules.user_authentication import UserAuthentication
+
 from physics_app.utilities.alert import Alert
 from physics_app.utilities.setup_icons import setup_info_icon, setup_error_icon
 from physics_app.utilities.tooltip import Tooltip
@@ -12,13 +12,17 @@ from physics_app.utilities.utilities import configure_grid, resize_and_update_im
 from physics_app.views.Sign_Up_Login_DIR.forgot_password_window import (
     ForgotPasswordManager,
 )
+from physics_app.utilities.server_utilities.user_authentication import (
+    UserAuthentication,
+)
 
 
 class SignUpLoginPage(tk.Frame):
-    def __init__(self, master, auth: UserAuthentication):
+    def __init__(self, master, server_url: str):
         super().__init__(master)
         self.master = master
-        self.auth = auth
+        self.server_url = server_url
+        self.user_auth = UserAuthentication(server_url)
         self.setup_master_grid()
         self.setup_icons()
         self.create_widgets()
@@ -247,7 +251,7 @@ class SignUpLoginPage(tk.Frame):
             "<Button-1>",
             lambda e: ForgotPasswordManager(
                 self.master,
-                self.auth,
+                self.server_url,
                 email=(
                     self.email_entry_login.get().strip()
                     if self.email_entry_login.get().strip()
@@ -267,7 +271,7 @@ class SignUpLoginPage(tk.Frame):
             return
 
         self.alert.hide()
-        self.auth.insert_user_into_db(email, username, password)
+        self.user_auth.register_user(email, username, password)
         self.show_frame(self.login_frame)
 
     def validate_registration(self, email, username, password):
@@ -283,9 +287,9 @@ class SignUpLoginPage(tk.Frame):
             error_messages.append(
                 "Password must be at least 8 characters long and contain capital and lowercase letters, numbers, and a special character."
             )
-        if self.auth.is_email_taken(email):
+        if self.user_auth.is_email_taken(email):
             error_messages.append("Email is already registered.")
-        if self.auth.is_username_taken(username):
+        if self.user_auth.is_username_taken(username):
             error_messages.append("Username is already taken.")
         return error_messages
 
@@ -299,11 +303,8 @@ class SignUpLoginPage(tk.Frame):
             return
 
         self.alert.hide()
-        success, error_message = self.auth.confirm_user_details(
-            email_username, password
-        )
-        if not success:
-            self.show_error_alert(error_message, "Login Failed")
+        if not self.user_auth.login_user(email_username, password):
+            self.show_error_alert("Incorrect Email or Password", "Login Failed")
         else:
             print("Login successful!")
 

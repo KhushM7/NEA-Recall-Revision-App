@@ -3,20 +3,23 @@ import threading
 from typing import Optional
 
 import customtkinter as ctk
-from physics_app.utilities.tooltip import Tooltip
-from physics_app.utilities.server_utilities import (
-    request_verification_code,
-    request_verify_otp,
+
+from physics_app.utilities.server_utilities.user_authentication import (
+    UserAuthentication,
 )
-from physics_app.modules.user_authentication import UserAuthentication as Auth
+from physics_app.utilities.server_utilities.verification_handler import (
+    VerificationHandler,
+)
+from physics_app.utilities.tooltip import Tooltip
 from physics_app.utilities.setup_icons import setup_info_icon
 from physics_app.utilities.utilities import configure_grid
 
 
 class ForgotPasswordManager:
-    def __init__(self, master, auth: Auth, email: str = None) -> None:
+    def __init__(self, master, server_url: str, email: str = None) -> None:
         self.master = master
-        self.auth = auth
+        self.user_auth = UserAuthentication(server_url)
+        self.verification_handler = VerificationHandler(server_url)
         self.email = email
         self.icon_info, self.icon_info_size = setup_info_icon()
 
@@ -255,13 +258,13 @@ class ForgotPasswordManager:
         email = self.email_entry_forgot_password.get().strip()
         self.error_label.configure(text="")
 
-        if not email or not self.auth.is_email_taken(email):
+        if not email or not self.user_auth.is_email_taken(email):
             self.error_label.configure(
                 text="This email is not associated with any account."
             )
             return
 
-        if request_verification_code(email):
+        if self.verification_handler.request_verification_code(email):
             self.enter_code_frame.tkraise()
             self.start_timer()
 
@@ -274,7 +277,7 @@ class ForgotPasswordManager:
             self.error_label_otp.configure(text="Please enter the verification code.")
             return
 
-        if request_verify_otp(email, code):
+        if self.verification_handler.request_verify_otp(email, code):
             print("Success", "Verification successful!")
             self.reset_password_frame.tkraise()
         else:
@@ -300,7 +303,9 @@ class ForgotPasswordManager:
             self.error_label_password.configure(text="Passwords do not match.")
             return
 
-        if self.auth.update_password(self.email_entry_forgot_password.get(), password):
+        if self.user_auth.update_password(
+            self.email_entry_forgot_password.get(), password
+        ):
             print("Success", "Password has been updated successfully!")
             self.forgot_password_window.destroy()
         else:

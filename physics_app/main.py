@@ -2,19 +2,18 @@ import tkinter as tk
 import customtkinter as ctk
 
 from physics_app.views.Sign_Up_Login_DIR.sign_up_login_page import SignUpLoginPage
-from physics_app.modules.user_authentication import UserAuthentication
 
 
 class PhysicsApp(tk.Frame):
     def __init__(self, master: tk.Tk = None):
         super().__init__(master)
         self.master = master
-        self.auth = UserAuthentication("data/physics_revision_app.db")
+        self.server_url = "http://127.0.0.1:5000"
         self.create_widgets()
 
     def create_widgets(self):
         # Initialize and pack the sign-up/login page
-        self.sign_up_login_page = SignUpLoginPage(self, self.auth)
+        self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
         self.pack(fill=tk.BOTH, expand=True)
 
 
