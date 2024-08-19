@@ -246,7 +246,13 @@ class SignUpLoginPage(tk.Frame):
         forgot_password_label.bind(
             "<Button-1>",
             lambda e: ForgotPasswordManager(
-                self.master, self.auth
+                self.master,
+                self.auth,
+                email=(
+                    self.email_entry_login.get().strip()
+                    if self.email_entry_login.get().strip()
+                    else None
+                ),
             ).setup_forgot_password_window(),
         )
 

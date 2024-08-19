@@ -14,9 +14,10 @@ from physics_app.utilities.utilities import configure_grid
 
 
 class ForgotPasswordManager:
-    def __init__(self, master, auth: Auth) -> None:
+    def __init__(self, master, auth: Auth, email: str = None) -> None:
         self.master = master
         self.auth = auth
+        self.email = email
         self.icon_info, self.icon_info_size = setup_info_icon()
 
         self.forgot_password_window: Optional[ctk.CTkToplevel] = None
@@ -97,6 +98,9 @@ class ForgotPasswordManager:
         email_label.grid(row=2, column=0, padx=(13, 0), sticky="sw")
 
         self.email_entry_forgot_password = ctk.CTkEntry(self.send_code_frame)
+        self.email_entry_forgot_password.insert(
+            0, "" if self.email is None else self.email
+        )
         self.email_entry_forgot_password.grid(
             row=3, column=0, padx=10, pady=0, sticky="new"
         )
