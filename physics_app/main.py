@@ -2,6 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 
 from physics_app.views.Sign_Up_Login_DIR.sign_up_login_page import SignUpLoginPage
+from physics_app.views.home_page import HomePage
 
 
 class PhysicsApp(tk.Frame):
@@ -14,7 +15,10 @@ class PhysicsApp(tk.Frame):
     def create_widgets(self):
         # Initialize and pack the sign-up/login page
         self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
-        self.pack(fill=tk.BOTH, expand=True)
+        self.sign_up_login_page.pack(fill=tk.BOTH, expand=True)
+
+        self.home_page = HomePage(self, self.server_url)
+        self.home_page.pack(fill=tk.BOTH, expand=True)
 
 
 def main():
