@@ -13,20 +13,29 @@ class PhysicsApp(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        # Initialize and pack the sign-up/login page
+        # Initialize the sign-up/login page
         self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
-        self.sign_up_login_page.pack(fill=tk.BOTH, expand=True)
+        self.sign_up_login_page.grid(row=0, column=0, sticky="nsew")
 
+        # Initialize the home page
         self.home_page = HomePage(self, self.server_url)
-        self.home_page.pack(fill=tk.BOTH, expand=True)
+
+    def show_home_page(self):
+        # Hide the sign-up/login page and show the home page
+        self.sign_up_login_page.grid_forget()
+        self.home_page.grid(row=0, column=0, sticky="nsew")
 
 
 def main():
     # Set up the main application window
     root = ctk.CTk()
     app = PhysicsApp(master=root)
-    app.pack(fill=tk.BOTH, expand=True)
+    app.grid(row=0, column=0, sticky="nsew")
     root.title("Physics App")
+
+    # Make the grid expandable
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
 
     # Set the window size to fullscreen
     width, height = root.winfo_screenwidth(), root.winfo_screenheight()

@@ -207,6 +207,7 @@ class ForgotPasswordManager:
 
         Tooltip(
             password_info_label,
+            win_padx=69,
             text="Length at least 8 characters\n"
             "At least one uppercase letter\n"
             "At least one lowercase letter\n"

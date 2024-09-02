@@ -12,6 +12,8 @@ class Tooltip:
         foreground_color: str = "black",
         background_color: str = "white",
         corner_radius: int = 7,
+        win_padx: int = 10,
+        win_pady: int = 25,
         padx: int = 4,
         pady: int = 4,
     ):
@@ -22,6 +24,8 @@ class Tooltip:
         self.foreground_color = foreground_color
         self.background_color = background_color
         self.corner_radius = corner_radius
+        self.win_padx = win_padx
+        self.win_pady = win_pady
         self.padx = padx
         self.pady = pady
         self.tip_window = None
@@ -56,8 +60,8 @@ class Tooltip:
 
         # Get the position of the widget to place the tooltip
         x, y, _, _ = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 43
-        y += self.widget.winfo_rooty() + 25
+        x += self.widget.winfo_rootx() + self.win_padx
+        y += self.widget.winfo_rooty() + self.win_pady
 
         # Create tooltip window
         self.tip_window = ctk.CTkToplevel(self.widget, fg_color=self.background_color)
