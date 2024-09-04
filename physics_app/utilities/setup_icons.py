@@ -29,3 +29,11 @@ def setup_error_icon():
 
 def setup_close_icon():
     return setup_icon(OutlineIcon.X, color="#000000")
+
+
+def setup_show_password_icon():
+    return setup_icon(OutlineIcon.EYE, color="#000000")
+
+
+def setup_hide_password_icon():
+    return setup_icon(OutlineIcon.EYE_OFF, color="#000000")

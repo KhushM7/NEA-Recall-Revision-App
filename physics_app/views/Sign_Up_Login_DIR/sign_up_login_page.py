@@ -7,6 +7,7 @@ from PIL import Image
 
 from physics_app.utilities.alert import Alert
 from physics_app.utilities.setup_icons import setup_info_icon, setup_error_icon
+from physics_app.utilities.show_password import PasswordEntry
 from physics_app.utilities.tooltip import Tooltip
 from physics_app.utilities.utilities import configure_grid, resize_and_update_image
 from physics_app.views.Sign_Up_Login_DIR.forgot_password_window import (
@@ -162,9 +163,7 @@ class SignUpLoginPage(tk.Frame):
             "At least one special character",
             hover_delay=175,
         )
-        self.password_entry_sign_up = ctk.CTkEntry(
-            self.sign_up_frame, show="*", placeholder_text="*****"
-        )
+        self.password_entry_sign_up = PasswordEntry(self.sign_up_frame)
         self.password_entry_sign_up.grid(row=6, column=1, padx=10, sticky="new")
 
     def create_sign_up_buttons(self):
@@ -216,9 +215,7 @@ class SignUpLoginPage(tk.Frame):
         )
         password_label.grid(row=3, column=1, padx=(13, 0), pady=(15, 0), sticky="sw")
 
-        self.password_entry_login = ctk.CTkEntry(
-            self.login_frame, show="*", placeholder_text="*****"
-        )
+        self.password_entry_login = PasswordEntry(self.login_frame)
         self.password_entry_login.grid(row=4, column=1, padx=10, sticky="new")
 
     def create_login_buttons(self):
@@ -332,13 +329,14 @@ class SignUpLoginPage(tk.Frame):
         entries = [
             (self.email_entry_sign_up, "user@email.com"),
             (self.username_entry_sign_up, "username"),
-            (self.password_entry_sign_up, "*****"),
             (self.email_entry_login, "Enter your email or username"),
-            (self.password_entry_login, "*****"),
         ]
         for entry, placeholder in entries:
             entry.delete(0, tk.END)
             entry.configure(placeholder_text=placeholder)
+
+        self.password_entry_sign_up.clear_entry()
+        self.password_entry_login.clear_entry()
 
     def show_error_alert(self, message, title="Error"):
         self.alert.update_text(new_title=title, new_message=message)

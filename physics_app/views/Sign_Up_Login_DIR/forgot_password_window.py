@@ -10,6 +10,7 @@ from physics_app.utilities.server_utilities.user_authentication import (
 from physics_app.utilities.server_utilities.verification_handler import (
     VerificationHandler,
 )
+from physics_app.utilities.show_password import PasswordEntry
 from physics_app.utilities.tooltip import Tooltip
 from physics_app.utilities.setup_icons import setup_info_icon
 from physics_app.utilities.utilities import configure_grid
@@ -216,9 +217,7 @@ class ForgotPasswordManager:
             hover_delay=175,
         )
 
-        self.password_entry_forgot_password = ctk.CTkEntry(
-            self.reset_password_frame, show="*", placeholder_text="*****"
-        )
+        self.password_entry_forgot_password = PasswordEntry(self.reset_password_frame)
         self.password_entry_forgot_password.grid(row=2, column=0, padx=10, sticky="new")
 
         confirm_password_label = ctk.CTkLabel(
