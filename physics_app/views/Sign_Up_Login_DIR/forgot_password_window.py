@@ -229,8 +229,8 @@ class ForgotPasswordManager:
             row=3, column=0, padx=(13, 0), pady=(15, 0), sticky="sw"
         )
 
-        self.confirm_password_entry_forgot_password = ctk.CTkEntry(
-            self.reset_password_frame, show="*", placeholder_text="*****"
+        self.confirm_password_entry_forgot_password = PasswordEntry(
+            self.reset_password_frame
         )
         self.confirm_password_entry_forgot_password.grid(
             row=4, column=0, padx=10, sticky="new"
@@ -286,8 +286,10 @@ class ForgotPasswordManager:
             )
 
     def on_reset_password(self) -> None:
-        password = self.password_entry_forgot_password.get().strip()
-        confirm_password = self.confirm_password_entry_forgot_password.get().strip()
+        password = self.password_entry_forgot_password.get_entry().strip()
+        confirm_password = (
+            self.confirm_password_entry_forgot_password.get_entry().strip()
+        )
         self.error_label_password.configure(text="")
 
         if not re.match(

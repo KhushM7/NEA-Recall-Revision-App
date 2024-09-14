@@ -60,3 +60,6 @@ class PasswordEntry(ctk.CTkFrame):
             self.password_entry.configure(placeholder_text="Password")
             self.is_password_visible = False
             self.toggle_button.configure(image=self.icon_hide_password)
+
+    def get_entry(self):
+        return self.password_entry.get()

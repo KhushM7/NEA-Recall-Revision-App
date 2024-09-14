@@ -261,7 +261,7 @@ class SignUpLoginPage(tk.Frame):
     def register_user(self):
         email = self.email_entry_sign_up.get().strip()
         username = self.username_entry_sign_up.get().strip()
-        password = self.password_entry_sign_up.get()
+        password = self.password_entry_sign_up.get_entry()
         error_messages = self.validate_registration(email, username, password)
 
         if error_messages:

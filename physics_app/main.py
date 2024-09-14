@@ -14,8 +14,8 @@ class PhysicsApp(tk.Frame):
 
     def create_widgets(self):
         # Initialize the sign-up/login page
-        self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
-        self.sign_up_login_page.grid(row=0, column=0, sticky="nsew")
+        # self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
+        # self.sign_up_login_page.grid(row=0, column=0, sticky="nsew")
 
         # Initialize the home page
         self.home_page = HomePage(self, self.server_url)
