@@ -1,25 +1,19 @@
-import tkinter as tk
 import customtkinter as ctk
 
-from physics_app.views.flashcard_library import FlashcardLibraryScreen
+from physics_app.views.flashcard_reviewer import FlashcardReviewer
 
 
-class HomePage(tk.Frame):
-    def __init__(self, master, server_url: str):
+class HomePage(ctk.CTkFrame):
+    def __init__(self, master, server_url, user_id):
         super().__init__(master)
-        self.master = master
         self.server_url = server_url
+        self.user_id = user_id
+        self.label = ctk.CTkLabel(self, text="Home", font=("Arial", 24))
+        self.label.grid(row=0, column=0, pady=20)
 
-        self.master.grid_rowconfigure(0, weight=0)
-        self.master.grid_rowconfigure(1, weight=0)
-        self.master.grid_rowconfigure(2, weight=0)
-        self.master.grid_columnconfigure(0, weight=0)
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.flashcard_library_button = ctk.CTkButton(
-            self.master,
-            text="Flashcard Library",
-            command=lambda: FlashcardLibraryScreen(self.master, self.server_url),
+        self.review_button = ctk.CTkButton(
+            self,
+            text="Review",
+            command=lambda: master.switch_frame(FlashcardReviewer(self), user_id),
         )
-        self.flashcard_library_button.grid(row=0, column=0, sticky="nsew")
+        self.review_button.grid(row=1, column=0, pady=20)

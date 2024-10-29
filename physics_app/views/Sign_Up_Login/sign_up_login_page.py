@@ -10,12 +10,13 @@ from physics_app.utilities.setup_icons import setup_info_icon, setup_error_icon
 from physics_app.utilities.show_password import PasswordEntry
 from physics_app.utilities.tooltip import Tooltip
 from physics_app.utilities.utilities import configure_grid, resize_and_update_image
-from physics_app.views.Sign_Up_Login_DIR.forgot_password_window import (
+from physics_app.views.Sign_Up_Login.forgot_password_window import (
     ForgotPasswordManager,
 )
 from physics_app.utilities.server_utilities.user_authentication import (
     UserAuthentication,
 )
+from physics_app.views.home_page import HomePage
 
 
 class SignUpLoginPage(tk.Frame):
@@ -304,7 +305,8 @@ class SignUpLoginPage(tk.Frame):
         if not self.user_auth.login_user(email_username, password):
             self.show_error_alert("Incorrect Email or Password", "Login Failed")
         else:
-            print("Login successful!")
+            # Get user id from user who logged in
+            self.master.switch_frame(HomePage)
 
     def validate_login(self, email_username, password):
         error_messages = []

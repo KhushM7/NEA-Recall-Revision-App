@@ -1,7 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
 
-from physics_app.views.Sign_Up_Login_DIR.sign_up_login_page import SignUpLoginPage
+from physics_app.views.Sign_Up_Login.sign_up_login_page import SignUpLoginPage
 from physics_app.views.home_page import HomePage
 
 
@@ -13,17 +13,17 @@ class PhysicsApp(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        # Initialize the sign-up/login page
         # self.sign_up_login_page = SignUpLoginPage(self, self.server_url)
         # self.sign_up_login_page.grid(row=0, column=0, sticky="nsew")
-
-        # Initialize the home page
-        self.home_page = HomePage(self, self.server_url)
-
-    def show_home_page(self):
-        # Hide the sign-up/login page and show the home page
-        self.sign_up_login_page.grid_forget()
+        self.home_page = HomePage(self, self.server_url, user_id=1)
         self.home_page.grid(row=0, column=0, sticky="nsew")
+
+    def switch_frame(self, frame_class, user_id):
+        new_frame = frame_class(self, user_id)
+        if hasattr(self, "current_frame"):
+            self.current_frame.destroy()
+        self.current_frame = new_frame
+        self.current_frame.grid(row=0, column=0, sticky="nsew")
 
 
 def main():
