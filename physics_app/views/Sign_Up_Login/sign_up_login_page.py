@@ -16,14 +16,14 @@ from physics_app.views.Sign_Up_Login.forgot_password_window import (
 from physics_app.utilities.server_utilities.user_authentication import (
     UserAuthentication,
 )
-from physics_app.views.home_page import HomePage
 
 
 class SignUpLoginPage(tk.Frame):
-    def __init__(self, master, server_url: str):
+    def __init__(self, master, server_url: str, on_login_success):
         super().__init__(master)
         self.master = master
         self.server_url = server_url
+        self.on_login_success = on_login_success
         self.user_auth = UserAuthentication(server_url)
         self.setup_master_grid()
         self.setup_icons()
@@ -294,7 +294,7 @@ class SignUpLoginPage(tk.Frame):
 
     def login_user(self):
         email_username = self.email_entry_login.get()
-        password = self.password_entry_login.get()
+        password = self.password_entry_login.get_entry()
         error_messages = self.validate_login(email_username, password)
 
         if error_messages:
@@ -305,8 +305,11 @@ class SignUpLoginPage(tk.Frame):
         if not self.user_auth.login_user(email_username, password):
             self.show_error_alert("Incorrect Email or Password", "Login Failed")
         else:
-            # Get user id from user who logged in
-            self.master.switch_frame(HomePage)
+            user_id = self.user_auth.get_user_id(email_username)
+            if user_id:
+                self.on_login_success(user_id)
+            else:
+                print("Failed to retrieve user ID")
 
     def validate_login(self, email_username, password):
         error_messages = []

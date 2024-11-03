@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from PIL import Image, ImageTk
-from typing import Tuple, Optional
+from typing import Tuple
 
 
 def configure_grid(frame: ctk.CTkFrame, rows: int, columns: int) -> None:

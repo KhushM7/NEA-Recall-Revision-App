@@ -1,3 +1,5 @@
+from typing import Optional
+
 from physics_app.utilities.server_utilities.make_request import make_request
 
 REGISTER_ENDPOINT = "/register"
@@ -5,6 +7,7 @@ LOGIN_ENDPOINT = "/login"
 UPDATE_PASSWORD_ENDPOINT = "/update_password"
 IS_EMAIL_TAKEN_ENDPOINT = "/is_email_taken"
 IS_USERNAME_TAKEN_ENDPOINT = "/is_username_taken"
+GET_USER_ID_ENDPOINT = "/get_user_id"
 
 
 class UserAuthentication:
@@ -76,3 +79,15 @@ class UserAuthentication:
             "GET", IS_USERNAME_TAKEN_ENDPOINT, params={"username": username}
         )
         return result.get("username_taken", False)
+
+    def get_user_id(self, email_or_username: str) -> Optional[int]:
+        """
+        Retrieve the user ID based on email or username.
+
+        :param email_or_username: The email or username of the user.
+        :return: User ID if found, otherwise None.
+        """
+        result = make_request(
+            "GET", GET_USER_ID_ENDPOINT, params={"email_or_username": email_or_username}
+        )
+        return result.get("user_id") if "user_id" in result else None
