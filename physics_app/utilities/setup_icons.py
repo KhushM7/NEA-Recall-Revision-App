@@ -19,6 +19,30 @@ def setup_icon(icon_type, color, size=24, stroke_width=2):
     return icon_image, size
 
 
+def setup_folder_icon():
+    return setup_icon(OutlineIcon.FOLDERS, color="#000")
+
+
+def setup_calender_clock_icon():
+    return setup_icon(OutlineIcon.CALENDAR_CLOCK, color="#000")
+
+
+def setup_calender_cancel_icon():
+    return setup_icon(OutlineIcon.CALENDAR_CANCEL, color="#000")
+
+
+def setup_plus_icon():
+    return setup_icon(OutlineIcon.PLUS, color="#000")
+
+
+def setup_settings_icon():
+    return setup_icon(OutlineIcon.SETTINGS, color="#000")
+
+
+def setup_logout_icon():
+    return setup_icon(OutlineIcon.LOGOUT_2, color="#000")
+
+
 def setup_info_icon():
     return setup_icon(OutlineIcon.INFO_CIRCLE, color="#000")
 

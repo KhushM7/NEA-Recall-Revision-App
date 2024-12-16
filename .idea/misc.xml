@@ -3,9 +3,10 @@
   <component name="Black">
     <option name="enabledOnReformat" value="true" />
     <option name="enabledOnSave" value="true" />
-    <option name="sdkName" value="Python 3.12 (NEA-Physics-Revision-App)" />
+    <option name="pathToExecutable" value="C:\Users\khush\AppData\Local\Programs\Python\Python312\Scripts\black.exe" />
+    <option name="sdkName" value="Python 3.12 (pythonProject1)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (NEA-Physics-Revision-App)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (pythonProject1)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>

@@ -1,11 +1,11 @@
 import customtkinter as ctk
-from typing import Optional, Tuple
+from typing import Optional, Union
 
 
 class Tooltip:
     def __init__(
         self,
-        widget: ctk.CTkLabel,
+        widget: Union[ctk.CTkLabel, ctk.CTkButton],
         text: str,
         hover_delay: int = 1000,
         font: Optional[ctk.CTkFont] = None,

@@ -1,32 +1,50 @@
 import customtkinter as ctk
-from datetime import datetime
 from typing import List, Dict, Any
 from physics_app.utilities.server_utilities.flashcard_handler import FlashcardHandler
+from physics_app.views.choose_set_to_review import ChooseSetToReview
 
 
 class FlashcardReviewer(ctk.CTkFrame):
-    def __init__(self, root, user_id, on_close):
+    def __init__(self, root, user_id, on_close, review_type):
         super().__init__(root)
+        self.root = root
         self.user_id = user_id
         self.on_close = on_close
+        self.review_type = review_type
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")
         self.flashcards: List[Dict[str, Any]] = []
         self.current_index = 0
         self.is_flipped = False
+        self.correct_count = 0
+        self.wrong_count = 0
 
         # Configure layout and initialize components
         self.configure(fg_color="#f4f4f4")
+
         self.create_widgets()
         self.load_flashcards()
 
     def create_widgets(self):
+        # Configure grid weights to center the content
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_columnconfigure(2, weight=0)
+        self.grid_columnconfigure(3, weight=0)
+        self.grid_columnconfigure(4, weight=0)
+        self.grid_columnconfigure(5, weight=0)
+        self.grid_columnconfigure(6, weight=1)
+
         # Close button to return to the home page
         self.close_button = ctk.CTkButton(
             self, text="X", command=self.on_close, width=30
         )
-        self.close_button.grid(row=0, column=4, sticky="ne", padx=10, pady=10)
+        self.close_button.grid(row=0, column=6, sticky="ne", padx=10, pady=10)
 
-        # Flashcard display area
         self.flashcard_label = ctk.CTkLabel(
             self,
             text="Loading...",
@@ -34,14 +52,12 @@ class FlashcardReviewer(ctk.CTkFrame):
             width=500,
             height=250,
             fg_color="#ffffff",
+            wraplength=480,
             corner_radius=10,
         )
-        self.flashcard_label.grid(row=1, column=0, columnspan=5, pady=20)
-        self.flashcard_label.bind(
-            "<Button-1>", lambda event: self.flip_card()
-        )  # Flip on click
+        self.flashcard_label.grid(row=1, column=1, columnspan=5, pady=20, sticky="nsew")
+        self.flashcard_label.bind("<Button-1>", lambda event: self.flip_card())
 
-        # Instruction label below the flashcard
         self.instruction_label = ctk.CTkLabel(
             self,
             text="",
@@ -49,27 +65,46 @@ class FlashcardReviewer(ctk.CTkFrame):
             fg_color="#f4f4f4",
             text_color="grey",
         )
-        self.instruction_label.grid(row=2, column=0, columnspan=5, pady=(5, 20))
+        self.instruction_label.grid(
+            row=2, column=1, columnspan=5, pady=(5, 20), sticky="nsew"
+        )
 
-        # Buttons for rating flashcards
+        # Create buttons with equal spacing and centered
         self.again_button = ctk.CTkButton(self, text="Again", command=self.mark_again)
-        self.again_button.grid(row=3, column=0, padx=10)
+        self.again_button.grid(row=3, column=2, padx=10, sticky="ew")
         self.hard_button = ctk.CTkButton(self, text="Hard", command=self.mark_hard)
-        self.hard_button.grid(row=3, column=1, padx=10)
+        self.hard_button.grid(row=3, column=3, padx=10, sticky="ew")
         self.good_button = ctk.CTkButton(self, text="Good", command=self.mark_good)
-        self.good_button.grid(row=3, column=2, padx=10)
+        self.good_button.grid(row=3, column=4, padx=10, sticky="ew")
         self.easy_button = ctk.CTkButton(self, text="Easy", command=self.mark_easy)
-        self.easy_button.grid(row=3, column=3, padx=10)
+        self.easy_button.grid(row=3, column=5, padx=10, sticky="ew")
+
+        # Create buttons for unscheduled review
+        self.correct_button = ctk.CTkButton(
+            self, text="Correct", command=self.mark_correct
+        )
+        self.wrong_button = ctk.CTkButton(self, text="Wrong", command=self.mark_wrong)
 
     def load_flashcards(self):
         """Fetch flashcards from the server and display the first one."""
-        self.flashcards = self.flashcard_handler.get_due_flashcards(self.user_id)
-        if self.flashcards:
+        if self.review_type == "scheduled":
+            self.flashcards = self.flashcard_handler.get_due_flashcards(self.user_id)
+            if self.flashcards:
+                self.current_index = 0
+                self.display_flashcard()
+            else:
+                self.flashcard_label.configure(text="No flashcards available.")
+                self.disable_buttons()
+        elif self.review_type == "unscheduled":
+            sets = self.flashcard_handler.get_sets(self.user_id)
+            chooser = ChooseSetToReview(self, sets)
+            chosen_set = chooser.get_chosen_set()
+            self.flashcards = self.flashcard_handler.get_flashcards_by_set(
+                self.user_id, chosen_set
+            )
             self.current_index = 0
             self.display_flashcard()
-        else:
-            self.flashcard_label.configure(text="No flashcards available.")
-            self.disable_buttons()
+            self.show_unscheduled_buttons()
 
     def display_flashcard(self):
         """Display the current flashcard."""
@@ -81,6 +116,8 @@ class FlashcardReviewer(ctk.CTkFrame):
         else:
             self.flashcard_label.configure(text="Review complete.")
             self.disable_buttons()
+            if self.review_type == "unscheduled":
+                self.show_results()
 
     def flip_card(self):
         """Flip between the front and back of the current flashcard."""
@@ -133,9 +170,36 @@ class FlashcardReviewer(ctk.CTkFrame):
         else:
             print("Failed to submit rating.")
 
+    def mark_correct(self):
+        """Handle 'Correct' button press."""
+        self.correct_count += 1
+        self.next_flashcard()
+
+    def mark_wrong(self):
+        """Handle 'Wrong' button press."""
+        self.wrong_count += 1
+        self.next_flashcard()
+
+    def show_unscheduled_buttons(self):
+        """Show 'Correct' and 'Wrong' buttons for unscheduled review."""
+        self.again_button.grid_remove()
+        self.hard_button.grid_remove()
+        self.good_button.grid_remove()
+        self.easy_button.grid_remove()
+        self.correct_button.grid(row=3, column=3, padx=10, sticky="ew")
+        self.wrong_button.grid(row=3, column=4, padx=10, sticky="ew")
+
+    def show_results(self):
+        """Display the results of the review."""
+        result_text = f"Correct: {self.correct_count}\nWrong: {self.wrong_count}"
+        self.flashcard_label.configure(text=result_text)
+        self.instruction_label.configure(text="Review complete.")
+
     def disable_buttons(self):
         """Disable interaction buttons."""
         self.again_button.configure(state="disabled")
         self.hard_button.configure(state="disabled")
         self.good_button.configure(state="disabled")
         self.easy_button.configure(state="disabled")
+        self.correct_button.configure(state="disabled")
+        self.wrong_button.configure(state="disabled")

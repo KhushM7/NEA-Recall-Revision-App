@@ -36,7 +36,6 @@ class SignUpLoginPage(tk.Frame):
         self.master.grid_columnconfigure(0, weight=0)
         self.master.grid_columnconfigure(1, weight=1)
         self.master.grid_columnconfigure(2, weight=0)
-        # self.master.configure(bg="white")
 
     def setup_icons(self):
         self.icon_info, self.icon_info_size = setup_info_icon()

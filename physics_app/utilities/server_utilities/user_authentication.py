@@ -8,6 +8,7 @@ UPDATE_PASSWORD_ENDPOINT = "/update_password"
 IS_EMAIL_TAKEN_ENDPOINT = "/is_email_taken"
 IS_USERNAME_TAKEN_ENDPOINT = "/is_username_taken"
 GET_USER_ID_ENDPOINT = "/get_user_id"
+GET_USERNAME_ENDPOINT = "/get_username"
 
 
 class UserAuthentication:
@@ -91,3 +92,13 @@ class UserAuthentication:
             "GET", GET_USER_ID_ENDPOINT, params={"email_or_username": email_or_username}
         )
         return result.get("user_id") if "user_id" in result else None
+
+    def get_username(self, user_id: int) -> Optional[str]:
+        """
+        Retrieve the username based on user ID.
+
+        :param user_id: The ID of the user.
+        :return: Username if found, otherwise None.
+        """
+        result = make_request("GET", GET_USERNAME_ENDPOINT, params={"user_id": user_id})
+        return result.get("username") if "username" in result else None
