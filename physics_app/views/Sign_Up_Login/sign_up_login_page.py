@@ -19,9 +19,9 @@ from physics_app.utilities.server_utilities.user_authentication import (
 
 
 class SignUpLoginPage(tk.Frame):
-    def __init__(self, master, server_url: str, on_login_success):
-        super().__init__(master)
-        self.master = master
+    def __init__(self, parent, server_url: str, on_login_success):
+        super().__init__(parent)
+        self.master = parent
         self.server_url = server_url
         self.on_login_success = on_login_success
         self.user_auth = UserAuthentication(server_url)

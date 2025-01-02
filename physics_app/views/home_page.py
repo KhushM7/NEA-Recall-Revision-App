@@ -1,5 +1,6 @@
 import customtkinter as ctk
-from tkinter import Toplevel
+from tkinter import Toplevel, NW, Canvas
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 from physics_app.utilities.server_utilities.user_authentication import (
     UserAuthentication,
@@ -16,93 +17,136 @@ from physics_app.utilities.setup_icons import (
 
 class HomePage(ctk.CTkFrame):
     def __init__(
-        self, root, user_id, server_url, on_review_click=None, on_create_set_click=None
+        self,
+        parent,
+        user_id,
+        server_url,
+        on_review=None,
+        on_create_set=None,
+        on_library=None,
+        on_logout=None,
     ):
-        super().__init__(root, fg_color="white")
-        print(root.winfo_width())
-        print(self.winfo_width())
-        self.grid(sticky="nsew")
+        super().__init__(parent, fg_color="white")
+
+        # User Authentication and Username
         self.user_auth = UserAuthentication(server_url)
-        self.username = self.user_auth.get_username(user_id)
-        self.on_review_click = on_review_click
-        self.on_create_set_click = on_create_set_click
-        self.icon_folders, self.icon_folders_size = setup_folder_icon()
-        self.icon_calender_clock, self.icon_calender_clock_size = (
-            setup_calender_clock_icon()
-        )
-        self.icon_calender_cancel, self.icon_calender_cancel_size = (
-            setup_calender_cancel_icon()
-        )
-        self.icon_plus, self.icon_plus_size = setup_plus_icon()
-        self.icon_settings, self.icon_settings_size = setup_settings_icon()
-        self.icon_logout, self.icon_logout_size = setup_logout_icon()
-        self.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+        self.username = self.user_auth.get_username(user_id) or "User"
+        self.on_review_click = on_review
+        self.on_create_set_click = on_create_set
+        self.on_library_click = on_library
+        self.on_logout = on_logout
+        # Icons Setup
+        self.icon_folders, _ = setup_folder_icon()
+        self.icon_calender_clock, _ = setup_calender_clock_icon()
+        self.icon_calender_cancel, _ = setup_calender_cancel_icon()
+        self.icon_plus, _ = setup_plus_icon()
+        self.icon_settings, _ = setup_settings_icon()
+        self.icon_logout, _ = setup_logout_icon()
+
+        # Layout Configuration
+        self.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
         self.grid_rowconfigure(0, weight=0)
+
         # Placeholder for logo
-        logo_placeholder = ctk.CTkLabel(
-            self, text="Logo Placeholder", width=100, height=100
+        ctk.CTkLabel(self, text="Logo Placeholder", width=100, height=100).grid(
+            row=0, column=0, sticky="w", padx=20, pady=20
         )
-        logo_placeholder.grid(row=0, column=0, sticky="w", padx=20, pady=20)
 
-        # Library button with tooltip
-        library_button = ctk.CTkButton(
-            self,
-            text="Your Library",
-            image=self.icon_folders,
+        button_font = ctk.CTkFont(family="Open Sans", size=18)
+        button_color = "#B6DCFE"  # Light blue background
+
+        # Buttons
+        self.create_main_button(
+            "Your Library",
+            self.icon_folders,
+            1,
+            button_font,
+            button_color,
+            self.on_library_click,
         )
-        library_button.grid(row=0, column=1, sticky="w", padx=10)
-
-        # Scheduled review button
-        scheduled_review_button = ctk.CTkButton(
-            self,
-            text="Scheduled Review",
-            image=self.icon_calender_clock,
-            command=lambda: self.on_review_click("scheduled"),
+        self.create_main_button(
+            "Scheduled Review",
+            self.icon_calender_clock,
+            2,
+            button_font,
+            button_color,
+            lambda: self.on_review_click("scheduled"),
         )
-        scheduled_review_button.grid(row=0, column=2, sticky="w", padx=10)
-
-        # Unscheduled review button
-        unscheduled_review_button = ctk.CTkButton(
-            self,
-            text="Unscheduled Review",
-            image=self.icon_calender_cancel,
-            command=lambda: self.on_review_click("unscheduled"),
+        self.create_main_button(
+            "Create",
+            self.icon_plus,
+            3,
+            button_font,
+            button_color,
+            self.on_create_set_click,
         )
-        unscheduled_review_button.grid(row=0, column=3, sticky="w", padx=10)
 
-        # Create set button ("+" icon)
-        create_set_button = ctk.CTkButton(
-            self,
-            text="Create",
-            image=self.icon_plus,
-            command=self.on_create_set_click,
-        )
-        create_set_button.grid(row=0, column=4, padx=0)
-
-        # User icon and menu
-        # Create a circular user menu button
-        letter = self.username[0]  # Get the first letter
-        text_width = (
-            len(letter) * 16
-        )  # Estimate the width of the letter in pixels (16 is an average width)
-        button_diameter = max(
-            text_width, 40
-        )  # Set a minimum diameter (e.g., 40px for single characters)
-
+        # User Menu Button
+        self.user_menu_image = self.create_user_icon(self.username[0])
         self.user_menu_button = ctk.CTkButton(
             self,
-            text=letter,  # Display the letter
-            width=button_diameter,  # Button width matches diameter
-            height=button_diameter,  # Button height matches diameter
-            corner_radius=button_diameter // 2,  # Make it circular
-            fg_color="blue",  # Button background color
-            text_color="white",  # Letter color
-            font=ctk.CTkFont(size=14, weight="bold"),  # Adjust font size as needed
-            command=self.toggle_user_menu,  # Action when clicked
+            image=self.user_menu_image,
+            text="",
+            width=50,
+            height=50,
+            fg_color="transparent",  # User button background
+            hover=False,
+            command=self.toggle_user_menu,
         )
-        self.user_menu_button.grid(row=0, column=5, sticky="e", padx=10)
+        self.user_menu_button.grid(row=0, column=4, sticky="e", padx=10, pady=5)
 
         self.user_menu = None
+
+    def create_main_button(self, text, image, column, font, color, command=None):
+        """Create a styled button for the main interface."""
+        ctk.CTkButton(
+            self,
+            text=text,
+            image=image,
+            font=font,
+            fg_color=color,
+            text_color="black",
+            hover_color="#145DA0",
+            compound="left",  # Icon on the left, text on the right
+            command=command,
+        ).grid(row=0, column=column, sticky="ew", padx=10, pady=10)
+
+    def create_user_icon(self, letter):
+        """Generate a circular image with the first letter of the username."""
+        canvas_size = 60  # Canvas size (larger than the circle)
+        circle_size = 50  # Diameter of the circular button
+        image = Image.new(
+            "RGBA",
+            (canvas_size, canvas_size),
+            (255, 255, 255, 0),  # Transparent background
+        )
+        draw = ImageDraw.Draw(image)
+
+        # Calculate offsets to center the circle
+        offset = (canvas_size - circle_size) // 2
+
+        # Draw circle
+        draw.ellipse(
+            (offset, offset, offset + circle_size, offset + circle_size), fill="#0E273C"
+        )  # Circle color
+
+        # Load font and calculate text size
+        try:
+            font = ImageFont.truetype("arial.ttf", 22)
+        except OSError:
+            font = ImageFont.load_default()
+        bbox = draw.textbbox((0, 0), letter, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
+        # Center text within the circle
+        text_position = (
+            (canvas_size - text_width) // 2,
+            (canvas_size - text_height) // 2 - 2,
+        )
+        draw.text(text_position, letter, font=font, fill="white")
+
+        return ctk.CTkImage(light_image=image, size=(canvas_size, canvas_size))
 
     def toggle_user_menu(self):
         if self.user_menu:
@@ -112,27 +156,127 @@ class HomePage(ctk.CTkFrame):
             self.show_user_menu()
 
     def show_user_menu(self):
+        # Popup menu
+        if self.user_menu:  # Prevent duplicate menus
+            return
+
         self.user_menu = Toplevel(self)
-        self.user_menu.overrideredirect(True)
-        # x = self.user_menu_button.winfo_rootx() - 50
-        # y = self.user_menu_button.winfo_rooty() + 50
-        # self.user_menu.geometry(f"150x100+{x}+{y}")
+        self.user_menu.overrideredirect(True)  # Remove window decorations
 
-        user_label = ctk.CTkLabel(self.user_menu, text=self.username)
-        user_label.pack(pady=(10, 5))
+        # Configure window transparency
+        self.user_menu.wm_attributes(
+            "-transparentcolor", "#FFFFFF"
+        )  # Transparency key color
 
+        # Create a rounded corner image
+        menu_width, menu_height = 200, 150
+        radius = 20  # Radius for rounded corners
+        rounded_image = Image.new("RGBA", (menu_width, menu_height), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(rounded_image)
+        draw.rounded_rectangle(
+            (0, 0, menu_width, menu_height),
+            radius=radius,
+            fill="#CDEDFD",  # Background color
+        )
+
+        # Convert to Tkinter image
+        self.rounded_bg_image = ImageTk.PhotoImage(rounded_image)
+
+        # Canvas to display the image as background
+        canvas = Canvas(
+            self.user_menu,
+            width=menu_width,
+            height=menu_height,
+            bg="#FFFFFF",
+            highlightthickness=0,
+        )
+        canvas.create_image(0, 0, image=self.rounded_bg_image, anchor=NW)
+        canvas.place(x=0, y=0)  # Place the canvas in the background
+
+        # Position the menu to align with the right edge of the main window
+        button_y = self.user_menu_button.winfo_rooty()
+        button_height = self.user_menu_button.winfo_height()
+        window_x = self.winfo_rootx()  # Main window's x-position
+        window_width = self.winfo_width()  # Main window's width
+
+        x = window_x + window_width - menu_width - 10  # Align menu's right edge
+        y = button_y + button_height + 5
+        self.user_menu.geometry(f"{menu_width}x{menu_height}+{x}+{y}")
+
+        button_font = ctk.CTkFont(size=14)
+
+        # Username Label
+        ctk.CTkLabel(
+            self.user_menu,
+            text=self.username,
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color="black",
+            bg_color="#CDEDFD",
+        ).place(x=10, y=10)
+
+        # Settings Button
         settings_button = ctk.CTkButton(
             self.user_menu,
             text="Settings",
             image=self.icon_settings,
+            font=button_font,
+            fg_color="#CDEDFD",
+            bg_color="#CDEDFD",
+            hover_color="#D7FDF0",
+            text_color="black",
+            compound="left",
+            width=180,
+            height=30,
+            corner_radius=10,
             command=lambda: print("Settings clicked"),
         )
-        settings_button.pack(fill="x", padx=10, pady=5)
+        settings_button.place(x=10, y=50)
 
+        # Log Out Button
         logout_button = ctk.CTkButton(
             self.user_menu,
             text="Log Out",
             image=self.icon_logout,
-            command=lambda: print("Log Out clicked"),
+            font=button_font,
+            hover_color="#D7FDF0",
+            fg_color="#CDEDFD",
+            bg_color="#CDEDFD",
+            text_color="black",
+            compound="left",
+            width=180,
+            height=30,
+            corner_radius=10,
+            command=self.on_logout,
         )
-        logout_button.pack(fill="x", padx=10, pady=5)
+        logout_button.place(x=10, y=90)
+
+        # Attach menu to main window
+        self.attach_menu_to_window()
+
+    def attach_menu_to_window(self):
+        """Attach the user menu to the main window."""
+
+        def update_menu_position():
+            if not self.user_menu:  # Stop updating if menu is destroyed
+                return
+
+            # Get updated position of the main window
+            window_x = self.winfo_rootx()
+            window_y = self.winfo_rooty()
+            window_width = self.winfo_width()
+
+            # Get updated position of the button relative to the main window
+            button_y = self.user_menu_button.winfo_rooty()
+            button_height = self.user_menu_button.winfo_height()
+
+            # Calculate new menu position
+            menu_width = 200
+            x = window_x + window_width - menu_width - 10  # Align menu's right edge
+            y = button_y + button_height + 5
+            self.user_menu.geometry(f"+{x}+{y}")
+
+            # Schedule the next update
+            self.after(50, update_menu_position)
+
+        # Start updating the position
+        update_menu_position()

@@ -11,6 +11,7 @@ class Tooltip:
         font: Optional[ctk.CTkFont] = None,
         foreground_color: str = "black",
         background_color: str = "white",
+        text_color: str = "white",
         corner_radius: int = 7,
         win_padx: int = 10,
         win_pady: int = 25,
@@ -23,6 +24,7 @@ class Tooltip:
         self.font = font or ctk.CTkFont(size=10)
         self.foreground_color = foreground_color
         self.background_color = background_color
+        self.text_color = text_color
         self.corner_radius = corner_radius
         self.win_padx = win_padx
         self.win_pady = win_pady
@@ -64,9 +66,17 @@ class Tooltip:
         y += self.widget.winfo_rooty() + self.win_pady
 
         # Create tooltip window
-        self.tip_window = ctk.CTkToplevel(self.widget, fg_color=self.background_color)
+        self.tip_window = ctk.CTkToplevel(self.widget)
         self.tip_window.overrideredirect(True)
         self.tip_window.geometry(f"+{x}+{y}")
+
+        # Apply transparency if background color is set to transparent
+        if self.background_color.lower() == "transparent":
+            transparent_color = "white"  # Fallback color to act as transparent
+            self.tip_window.configure(fg_color=transparent_color)
+            self.tip_window.attributes("-transparentcolor", transparent_color)
+        else:
+            self.tip_window.configure(fg_color=self.background_color)
 
         # Create label for tooltip
         label = ctk.CTkLabel(
@@ -74,7 +84,7 @@ class Tooltip:
             text=self.text,
             font=self.font,
             fg_color=self.foreground_color,
-            text_color=self.background_color,
+            text_color=self.text_color,
             corner_radius=self.corner_radius,
             padx=self.padx,
             pady=self.pady,

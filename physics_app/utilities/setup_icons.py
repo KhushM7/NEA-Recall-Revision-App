@@ -35,12 +35,16 @@ def setup_plus_icon():
     return setup_icon(OutlineIcon.PLUS, color="#000")
 
 
+def setup_bin_icon():
+    return setup_icon(OutlineIcon.TRASH, color="#000")
+
+
 def setup_settings_icon():
     return setup_icon(OutlineIcon.SETTINGS, color="#000")
 
 
 def setup_logout_icon():
-    return setup_icon(OutlineIcon.LOGOUT_2, color="#000")
+    return setup_icon(OutlineIcon.LOGOUT, color="#000")
 
 
 def setup_info_icon():
@@ -61,3 +65,7 @@ def setup_show_password_icon():
 
 def setup_hide_password_icon():
     return setup_icon(OutlineIcon.EYE_OFF, color="#000000")
+
+
+def setup_edit_icon():
+    return setup_icon(OutlineIcon.EDIT, color="#000000")
