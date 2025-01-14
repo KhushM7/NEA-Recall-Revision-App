@@ -1,5 +1,8 @@
 from physics_app.utilities.server_utilities.make_request import make_request
 
+SEND_VERIFICATION_CODE_ENDPOINT = "/send_verification_code"
+VERIFY_OTP_ENDPOINT = "/verify_otp"
+
 
 class VerificationHandler:
     def __init__(self, server_url: str):
@@ -12,7 +15,7 @@ class VerificationHandler:
         :param email: The email address to request the verification code for.
         :return: True if the verification code was sent successfully, False otherwise.
         """
-        result = make_request("POST", "/send_verification_code", {"email": email})
+        result = make_request("POST", SEND_VERIFICATION_CODE_ENDPOINT, {"email": email})
         return "error" not in result
 
     def request_verify_otp(self, email: str, otp: str) -> bool:
@@ -23,5 +26,5 @@ class VerificationHandler:
         :param otp: The OTP to verify.
         :return: True if the OTP was verified successfully, False otherwise.
         """
-        result = make_request("POST", "/verify_otp", {"email": email, "otp": otp})
+        result = make_request("POST", VERIFY_OTP_ENDPOINT, {"email": email, "otp": otp})
         return "error" not in result
