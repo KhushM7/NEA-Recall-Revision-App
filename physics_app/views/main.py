@@ -78,7 +78,7 @@ class PhysicsApp(tk.Frame):
         """Displays the home page."""
         self.show_frame(
             0,
-            1,
+            0,
             HomePage,
             self.user_id,
             self.server_url,

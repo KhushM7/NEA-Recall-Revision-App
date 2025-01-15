@@ -9,6 +9,7 @@ GET_SETS_ENDPOINT = "/get_sets"
 DELETE_CARD_ENDPOINT = "/delete_card"
 UPDATE_FLASHCARD_ENDPOINT = "/update_flashcard"
 DELETE_SET_ENDPOINT = "/delete_set"
+GET_REVIEW_LOG_BY_MONTH_ENDPOINT = "/get_review_log_by_month"
 
 
 class FlashcardHandler:
@@ -85,3 +86,9 @@ class FlashcardHandler:
         payload = {"user_id": user_id, "flashcard": flashcard}
         result = make_request("POST", "/update_flashcard", payload=payload)
         return result
+
+    def get_review_log_by_month(self, user_id: int, month: str, year: int):
+        """Fetch the review log for a specific month and year."""
+        params = {"user_id": user_id, "month": month, "year": year}
+        result = make_request("GET", GET_REVIEW_LOG_BY_MONTH_ENDPOINT, params=params)
+        return result.get("review_log", [])

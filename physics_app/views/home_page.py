@@ -13,6 +13,7 @@ from physics_app.utilities.setup_icons import (
     setup_settings_icon,
     setup_logout_icon,
 )
+from physics_app.views.dashboard_page import DashboardPage
 
 
 class HomePage(ctk.CTkFrame):
@@ -29,12 +30,19 @@ class HomePage(ctk.CTkFrame):
         super().__init__(parent, fg_color="white")
 
         # User Authentication and Username
+        self.master = parent
+        self.user_id = user_id
+        self.master.configure(fg_color="white")
+        parent.grid_rowconfigure(0, weight=0)
+        parent.grid_rowconfigure(1, weight=1)
+        parent.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
         self.user_auth = UserAuthentication(server_url)
         self.username = self.user_auth.get_username(user_id) or "User"
         self.on_review_click = on_review
         self.on_create_set_click = on_create_set
         self.on_library_click = on_library
         self.on_logout = on_logout
+
         # Icons Setup
         self.icon_folders, _ = setup_folder_icon()
         self.icon_calender_clock, _ = setup_calender_clock_icon()
@@ -44,11 +52,12 @@ class HomePage(ctk.CTkFrame):
         self.icon_logout, _ = setup_logout_icon()
 
         # Layout Configuration
-        self.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+
         self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=1)  # Give space to the dashboard
 
         # Placeholder for logo
-        ctk.CTkLabel(self, text="Logo Placeholder", width=100, height=100).grid(
+        ctk.CTkLabel(parent, text="Logo Placeholder", width=100, height=100).grid(
             row=0, column=0, sticky="w", padx=20, pady=20
         )
 
@@ -84,7 +93,7 @@ class HomePage(ctk.CTkFrame):
         # User Menu Button
         self.user_menu_image = self.create_user_icon(self.username[0])
         self.user_menu_button = ctk.CTkButton(
-            self,
+            parent,
             image=self.user_menu_image,
             text="",
             width=50,
@@ -94,13 +103,14 @@ class HomePage(ctk.CTkFrame):
             command=self.toggle_user_menu,
         )
         self.user_menu_button.grid(row=0, column=4, sticky="e", padx=10, pady=5)
-
         self.user_menu = None
+        self.dashboard = DashboardPage(self.master, self.user_id)
+        self.dashboard.grid(row=1, column=0, columnspan=5, sticky="nsew")
 
     def create_main_button(self, text, image, column, font, color, command=None):
         """Create a styled button for the main interface."""
         ctk.CTkButton(
-            self,
+            self.master,
             text=text,
             image=image,
             font=font,
