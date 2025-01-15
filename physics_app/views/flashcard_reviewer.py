@@ -2,13 +2,13 @@ import customtkinter as ctk
 from typing import List, Dict, Any
 from physics_app.utilities.server_utilities.flashcard_handler import FlashcardHandler
 from physics_app.utilities.setup_icons import setup_close_icon
-from physics_app.views.choose_set_to_review import ChooseSetToReview
 
 
 class BaseFlashcardReviewer(ctk.CTkFrame):
     def __init__(self, parent, user_id, on_close):
         super().__init__(parent)
         self.root = parent
+        self.root.configure(fg_color="#f4f4f4")
         self.user_id = user_id
         self.on_close = on_close
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")

@@ -23,6 +23,12 @@ class LibraryPage(ctk.CTkFrame):
         self.set_names_with_num_terms = (
             self.flashcard_handler.get_set_names_with_num_terms(self.user_id)
         )
+        parent.grid_rowconfigure(0, weight=1)
+        parent.grid_rowconfigure(1, weight=1)
+        parent.grid_rowconfigure(2, weight=1)
+        parent.grid_columnconfigure(0, weight=1)
+        parent.grid_columnconfigure(1, weight=1)
+        parent.grid_columnconfigure(2, weight=1)
         self.create_widgets()
 
     def create_widgets(self):

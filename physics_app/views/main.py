@@ -90,18 +90,18 @@ class PhysicsApp(tk.Frame):
 
     def on_create_set_click(self, user_id):
         """Displays the create set page."""
-        self.show_frame(1, 1, CreateSetPage, user_id, self.show_home_page)
+        self.show_frame(1, 2, CreateSetPage, user_id, self.show_home_page)
 
     def show_flashcard_reviewer(self, user_id, review_type, set_name=None):
         """Displays the flashcard reviewer page."""
         if review_type == "scheduled":
             self.show_frame(
-                1, 1, ScheduledFlashcardReviewer, user_id, self.show_home_page
+                1, 2, ScheduledFlashcardReviewer, user_id, self.show_home_page
             )
         elif review_type == "unscheduled":
             self.show_frame(
                 1,
-                1,
+                2,
                 UnscheduledFlashcardReviewer,
                 user_id,
                 lambda: self.on_library_click(user_id),
@@ -111,8 +111,8 @@ class PhysicsApp(tk.Frame):
     def on_library_click(self, user_id):
         """Displays the library page."""
         self.show_frame(
-            1,
-            1,
+            0,
+            2,
             LibraryPage,
             user_id,
             lambda review_type, set_name=None: self.show_flashcard_reviewer(

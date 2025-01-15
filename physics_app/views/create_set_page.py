@@ -9,6 +9,7 @@ class CreateSetPage(ctk.CTkFrame):
     def __init__(self, parent, user_id, on_close):
         super().__init__(parent)
         self.root = parent
+        self.root.configure(fg_color="#f2f6fa")
         self.user_id = user_id
         self.on_close = on_close
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")
