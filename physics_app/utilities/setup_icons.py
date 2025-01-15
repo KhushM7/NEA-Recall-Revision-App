@@ -69,3 +69,11 @@ def setup_hide_password_icon():
 
 def setup_edit_icon():
     return setup_icon(OutlineIcon.EDIT, color="#000000")
+
+
+def setup_next_icon():
+    return setup_icon(OutlineIcon.CHEVRON_RIGHT, color="#000000")
+
+
+def setup_previous_icon():
+    return setup_icon(OutlineIcon.CHEVRON_LEFT, color="#000000")

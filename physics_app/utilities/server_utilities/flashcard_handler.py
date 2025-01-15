@@ -10,6 +10,7 @@ DELETE_CARD_ENDPOINT = "/delete_card"
 UPDATE_FLASHCARD_ENDPOINT = "/update_flashcard"
 DELETE_SET_ENDPOINT = "/delete_set"
 GET_REVIEW_LOG_BY_MONTH_ENDPOINT = "/get_review_log_by_month"
+GET_NEXT_REVIEWS_BY_MONTH_ENDPOINT = "/get_next_reviews_by_month"
 
 
 class FlashcardHandler:
@@ -92,3 +93,9 @@ class FlashcardHandler:
         params = {"user_id": user_id, "month": month, "year": year}
         result = make_request("GET", GET_REVIEW_LOG_BY_MONTH_ENDPOINT, params=params)
         return result.get("review_log", [])
+
+    def get_next_reviews_by_month(self, user_id: int, month: str, year: int):
+        """Fetch the next reviews for a specific month and year."""
+        params = {"user_id": user_id, "month": month, "year": year}
+        result = make_request("GET", GET_NEXT_REVIEWS_BY_MONTH_ENDPOINT, params=params)
+        return result.get("next_reviews", [])
