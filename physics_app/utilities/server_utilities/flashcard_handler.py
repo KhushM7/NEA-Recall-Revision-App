@@ -11,6 +11,11 @@ UPDATE_FLASHCARD_ENDPOINT = "/update_flashcard"
 DELETE_SET_ENDPOINT = "/delete_set"
 GET_REVIEW_LOG_BY_MONTH_ENDPOINT = "/get_review_log_by_month"
 GET_NEXT_REVIEWS_BY_MONTH_ENDPOINT = "/get_next_reviews_by_month"
+GET_ALL_CURRENT_CARD_STATES_ENDPOINT = "/get_all_current_card_states"
+GET_TOTAL_LAPSES_ENDPOINT = "/get_total_lapses"
+GET_STABILITY_DATA_ENDPOINT = "/get_stability_data"
+GET_DIFFICULTY_DATA_ENDPOINT = "/get_difficulty_data"
+GET_CURRENT_RATINGS_ENDPOINT = "/get_current_ratings"
 
 
 class FlashcardHandler:
@@ -99,3 +104,35 @@ class FlashcardHandler:
         params = {"user_id": user_id, "month": month, "year": year}
         result = make_request("GET", GET_NEXT_REVIEWS_BY_MONTH_ENDPOINT, params=params)
         return result.get("next_reviews", [])
+
+    def get_all_current_card_states(self, user_id: int):
+        """Fetch the current state of all flashcards for a user."""
+        params = {"user_id": user_id}
+        result = make_request(
+            "GET", GET_ALL_CURRENT_CARD_STATES_ENDPOINT, params=params
+        )
+        return result.get("card_states", [])
+
+    def get_total_lapses(self, user_id: int):
+        """Fetch the total number of lapses for a user."""
+        params = {"user_id": user_id}
+        result = make_request("GET", GET_TOTAL_LAPSES_ENDPOINT, params=params)
+        return result.get("total_lapses", 0)
+
+    def get_stability_data(self, user_id: int):
+        """Fetch the stability data for a user."""
+        params = {"user_id": user_id}
+        result = make_request("GET", GET_STABILITY_DATA_ENDPOINT, params=params)
+        return result.get("stability_data", [])
+
+    def get_difficulty_data(self, user_id: int):
+        """Fetch the difficulty data for a user."""
+        params = {"user_id": user_id}
+        result = make_request("GET", GET_DIFFICULTY_DATA_ENDPOINT, params=params)
+        return result.get("difficulty_data", [])
+
+    def get_current_ratings(self, user_id: int):
+        """Fetch the current ratings for a user."""
+        params = {"user_id": user_id}
+        result = make_request("GET", GET_CURRENT_RATINGS_ENDPOINT, params=params)
+        return result.get("current_ratings", [])

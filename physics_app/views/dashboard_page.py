@@ -3,6 +3,7 @@ from tkinter import StringVar
 from datetime import datetime
 from calendar import monthrange
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.dates import DateFormatter, DayLocator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -62,8 +63,16 @@ class DashboardPage(ctk.CTkFrame):
             # Add content to the frames
             if i == 0:
                 self.setup_review_log_frame(frame)
-            elif i == 5:
+            elif i == 1:
+                self.setup_states_frame(frame)
+            elif i == 2:
                 self.setup_future_reviews_frame(frame)
+            elif i == 3:
+                self.setup_stability_frame(frame)
+            elif i == 4:
+                self.setup_difficulty_frame(frame)
+            elif i == 5:
+                self.setup_ratings_frame(frame)
             else:
                 ctk.CTkLabel(frame, text=f"Frame {i+1}", text_color="white").grid(
                     row=0, column=0, sticky="nsew", padx=5, pady=5
@@ -270,6 +279,231 @@ class DashboardPage(ctk.CTkFrame):
         self.future_year_var.set(str(new_year))
         self.update_future_calendar()
 
+    def setup_states_frame(self, frame):
+        title_font = ctk.CTkFont(size=16, weight="bold")
+        ctk.CTkLabel(frame, text="Current Card States", font=title_font).grid(
+            row=0, column=0, columnspan=3, pady=(10, 5)
+        )
+        self.states_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
+        self.states_canvas.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
+        )
+        frame.grid_rowconfigure(1, weight=5)  # Allocate most space to the graph
+        frame.grid_rowconfigure(3, weight=1)  # Allocate less space to the stats label
+        frame.grid_columnconfigure((0, 1, 2), weight=1)
+        # Stats label
+        self.lapses_stats_label = ctk.CTkLabel(
+            frame,
+            text="Number of times a card has been forgotten: ",
+            wraplength=400,
+            justify="center",
+            anchor="center",
+        )
+        self.lapses_stats_label.grid(
+            row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=(5, 10)
+        )
+
+        # Initial calendar rendering
+        self.update_card_states_graph()
+
+    def update_card_states_graph(self):
+        try:
+            states_data = self.flashcard_handler.get_all_current_card_states(
+                self.user_id
+            )
+            total_lapses = self.flashcard_handler.get_total_lapses(self.user_id)
+
+        except Exception as e:
+            self.lapses_stats_label.configure(text=f"Error fetching data: {str(e)}")
+            states_data = {}
+            total_lapses = 0
+
+        self.lapses_stats_label.configure(
+            text=f"Number of times a card has been forgotten: {total_lapses}"
+        )
+
+        # Get canvas dimensions and plot the graph
+        canvas_width = self.states_canvas.winfo_width() or 600
+        canvas_height = self.states_canvas.winfo_height() or 400
+
+        self.plot_pie_chart(
+            self.states_canvas, states_data, canvas_width, canvas_height
+        )
+
+    def setup_stability_frame(self, frame):
+        title_font = ctk.CTkFont(size=16, weight="bold")
+        ctk.CTkLabel(frame, text="Card Stability", font=title_font).grid(
+            row=0, column=0, columnspan=3, pady=(10, 5)
+        )
+        self.stability_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
+        self.stability_canvas.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
+        )
+        frame.grid_rowconfigure(1, weight=5)
+        self.update_stability_histogram()
+
+    def update_stability_histogram(self):
+        try:
+            stability_data = self.flashcard_handler.get_stability_data(self.user_id)
+        except Exception as e:
+            print(f"Error fetching data: {str(e)}")
+            stability_data = {}
+
+        stability_values = list(stability_data.values())
+        num_bins = int(np.ceil(1 + np.log2(len(stability_values))))
+        # Get canvas dimensions and plot the graph
+        canvas_width = self.stability_canvas.winfo_width() or 600
+        canvas_height = self.stability_canvas.winfo_height() or 400
+
+        self.plot_histogram(
+            self.stability_canvas,
+            stability_values,
+            num_bins,
+            canvas_width,
+            canvas_height,
+            "The delay at which retrievability falls to 90%",
+            "Stability",
+            "Number of Cards",
+        )
+
+    def setup_difficulty_frame(self, frame):
+        title_font = ctk.CTkFont(size=16, weight="bold")
+        ctk.CTkLabel(frame, text="Card Difficulty", font=title_font).grid(
+            row=0, column=0, columnspan=3, pady=(10, 5)
+        )
+        self.difficulty_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
+        self.difficulty_canvas.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
+        )
+        frame.grid_rowconfigure(1, weight=5)
+        self.update_difficulty_histogram()
+
+    def update_difficulty_histogram(self):
+        try:
+            difficulty_data = self.flashcard_handler.get_difficulty_data(self.user_id)
+        except Exception as e:
+            print(f"Error fetching data: {str(e)}")
+            difficulty_data = {}
+
+        difficulty_values = list(difficulty_data.values())
+        num_bins = int(np.ceil(1 + np.log2(len(difficulty_values))))
+        # Get canvas dimensions and plot the graph
+        canvas_width = self.difficulty_canvas.winfo_width() or 600
+        canvas_height = self.difficulty_canvas.winfo_height() or 400
+
+        self.plot_histogram(
+            self.difficulty_canvas,
+            difficulty_values,
+            num_bins,
+            canvas_width,
+            canvas_height,
+            "Greater difficulty slows stability growth",
+            "Difficulty",
+            "Number of Cards",
+        )
+
+    def setup_ratings_frame(self, frame):
+        title_font = ctk.CTkFont(size=16, weight="bold")
+        ctk.CTkLabel(frame, text="Last Card Ratings", font=title_font).grid(
+            row=0, column=0, columnspan=3, pady=(10, 5)
+        )
+        self.ratings_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
+        self.ratings_canvas.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
+        )
+        frame.grid_rowconfigure(1, weight=5)
+        self.update_card_ratings_graph()
+
+    def update_card_ratings_graph(self):
+        try:
+            rating_data = self.flashcard_handler.get_current_ratings(self.user_id)
+
+        except Exception as e:
+            print(f"Error fetching data: {str(e)}")
+            rating_data = {}
+
+        # Get canvas dimensions and plot the graph
+        canvas_width = self.states_canvas.winfo_width() or 600
+        canvas_height = self.states_canvas.winfo_height() or 400
+        self.plot_pie_chart(
+            self.ratings_canvas, rating_data, canvas_width, canvas_height
+        )
+
+    def plot_histogram(
+        self,
+        parent,
+        data_list,
+        bins,
+        canvas_width,
+        canvas_height,
+        graph_text,
+        x_label,
+        y_label,
+    ):
+        """
+        Plots a histogram using the given data.
+
+        Args:
+            parent: Tkinter parent widget where the chart will be displayed.
+            data_list: List of numerical data to plot in the histogram.
+            bins: Number of bins for the histogram.
+            canvas_width: Width of the canvas in pixels.
+            canvas_height: Height of the canvas in pixels.
+            graph_text: Title of the graph.
+            x_label: Label for the x-axis.
+            y_label: Label for the y-axis.
+        """
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+        # Define a single color for all bins
+        color = plt.cm.Paired(0)  # Choose the first color in the Paired colormap
+
+        # Adjust figure size to fully utilize canvas space
+        fig, ax = plt.subplots(
+            figsize=(canvas_width / 100, canvas_height / 100), dpi=100
+        )
+
+        # Create the histogram
+        ax.hist(
+            data_list,
+            bins=bins,
+            color=color,
+            edgecolor="black",
+            alpha=0.7,  # Transparency for better visual effect
+        )
+
+        # Dynamically adjust font sizes for the title and labels
+        title_fontsize = max(canvas_height // 20, 14)
+        label_fontsize = max(canvas_height // 35, 5)
+
+        # Set titles and labels
+        ax.set_title(
+            graph_text,
+            fontsize=title_fontsize,
+            pad=canvas_height // 40,  # Add padding to prevent overlap
+        )
+        ax.set_xlabel(
+            x_label,
+            fontsize=label_fontsize,
+            labelpad=canvas_height // 50,  # Add padding for x-label
+        )
+        ax.set_ylabel(
+            y_label,
+            fontsize=label_fontsize,
+            labelpad=canvas_height // 50,  # Add padding for y-label
+        )
+
+        # Adjust layout to ensure the graph fits within the canvas
+        fig.tight_layout(pad=1.5)
+
+        # Clear any existing widgets before displaying the new chart
+        for widget in parent.winfo_children():
+            widget.destroy()
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+
     def plot_calendar_bar_graph(
         self,
         parent,
@@ -316,7 +550,51 @@ class DashboardPage(ctk.CTkFrame):
         canvas.draw()
         canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
 
+    def plot_pie_chart(
+        self,
+        parent,
+        data_dict,
+        canvas_width,
+        canvas_height,
+    ):
+        # Extract keys and values from the data dictionary
+        labels = list(data_dict.keys())
+        sizes = list(data_dict.values())
+
+        # Define colors for each slice
+        colors = plt.cm.Paired(range(len(labels)))
+
+        # Adjust figure size to fully utilize canvas space
+        fig, ax = plt.subplots(
+            figsize=(canvas_width / 100, canvas_height / 100), dpi=100
+        )
+
+        # Create the pie chart
+        wedges, texts, autotexts = ax.pie(
+            sizes,
+            labels=labels,
+            autopct="%1.1f%%",
+            startangle=140,
+            colors=colors,
+            textprops={"fontsize": max(canvas_width // 50, 10)},  # Dynamic text size
+        )
+
+        # Ensure the pie chart is a perfect circle and fills the canvas
+        ax.set_aspect("equal")  # Ensures the pie chart is circular
+        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)  # Remove all margins
+
+        # Clear any existing widgets before displaying the new chart
+        for widget in parent.winfo_children():
+            widget.destroy()
+        canvas = FigureCanvasTkAgg(fig, master=parent)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+
     def on_visibility_change(self):
         self.update_idletasks()  # Ensure the geometry manager updates widget sizes
         self.update_review_log_graph()
         self.update_future_calendar()
+        self.update_card_states_graph()
+        self.update_stability_histogram()
+        self.update_difficulty_histogram()
+        self.update_card_ratings_graph()
