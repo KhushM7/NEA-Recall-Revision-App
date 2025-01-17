@@ -45,12 +45,12 @@ class DashboardPage(ctk.CTkFrame):
 
         # Add frames
         frame_colors = [
-            "#FFB3B3",
-            "#FFD9B3",
-            "#FFFFB3",
-            "#B3FFB3",
-            "#B3D9FF",
-            "#D9B3FF",
+            "#D3D3D3",
+            "#D3D3D3",
+            "#D3D3D3",
+            "#D3D3D3",
+            "#D3D3D3",
+            "#D3D3D3",
         ]
         for i in range(6):
             row, col = divmod(i, 3)

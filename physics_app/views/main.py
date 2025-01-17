@@ -22,13 +22,13 @@ class PhysicsApp(tk.Frame):
         self.user_id = 0
 
         # Container to hold all pages
-        self.container = ctk.CTkFrame(self)
-        self.container.grid(row=0, column=0, sticky="nsew")
-        self.grid(row=0, column=0, sticky="nsew")
 
         # Configure grid to expand for the container
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+        self.container = ctk.CTkFrame(self)
+        self.container.grid(row=0, column=0, sticky="nsew")
+        self.container.grid(row=0, column=0, sticky="nsew")
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_rowconfigure(1, weight=1)
         self.container.grid_rowconfigure(2, weight=1)
@@ -41,6 +41,8 @@ class PhysicsApp(tk.Frame):
 
         # Start with login page
         self.show_login_page()
+        self.master.grid_rowconfigure(0, weight=1)
+        self.master.grid_columnconfigure(0, weight=1)
 
     def show_frame(self, row, col, frame_class, *args):
         """
@@ -112,7 +114,7 @@ class PhysicsApp(tk.Frame):
         """Displays the library page."""
         self.show_frame(
             0,
-            2,
+            0,
             LibraryPage,
             user_id,
             lambda review_type, set_name=None: self.show_flashcard_reviewer(

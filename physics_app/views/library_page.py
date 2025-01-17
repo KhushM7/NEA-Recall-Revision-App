@@ -13,6 +13,8 @@ from physics_app.views.edit_set_page import EditSetWindow
 class LibraryPage(ctk.CTkFrame):
     def __init__(self, parent, user_id: int, on_review_click=None, on_close=None):
         super().__init__(parent)
+        self.configure(fg_color="white")
+        self.master = parent
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")
         self.edit_icon, _ = setup_edit_icon()
         self.close_icon, _ = setup_close_icon()
@@ -23,26 +25,30 @@ class LibraryPage(ctk.CTkFrame):
         self.set_names_with_num_terms = (
             self.flashcard_handler.get_set_names_with_num_terms(self.user_id)
         )
-        parent.grid_rowconfigure(0, weight=1)
-        parent.grid_rowconfigure(1, weight=1)
-        parent.grid_rowconfigure(2, weight=1)
-        parent.grid_columnconfigure(0, weight=1)
-        parent.grid_columnconfigure(1, weight=1)
-        parent.grid_columnconfigure(2, weight=1)
+        self.setup_master_grid()
         self.create_widgets()
 
-    def create_widgets(self):
-        # Configure grid to center frame
-        self.grid_rowconfigure((0, 2), weight=1)
-        self.grid_columnconfigure((0, 2), weight=1)
-        self.grid_rowconfigure(1, weight=10)
-        self.grid_columnconfigure(1, weight=10)
+    def setup_master_grid(self):
+        self.master.configure(fg_color="white")
+        self.master.grid_rowconfigure(0, weight=0)
+        self.master.grid_rowconfigure(1, weight=2)
+        self.master.grid_rowconfigure(2, weight=1)
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_columnconfigure(2, weight=1)
 
-        # Central frame
-        central_frame = ctk.CTkFrame(self)
-        central_frame.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
-        central_frame.grid_rowconfigure(1, weight=1)
-        central_frame.grid_columnconfigure(0, weight=1)
+    def create_widgets(self):
+        central_frame = ctk.CTkFrame(
+            self.master, height=self.master.winfo_height(), fg_color="#f0f0f0"
+        )
+        central_frame.grid(row=1, column=1, columnspan=3, sticky="nsew")
+
+        # Configure central_frame to expand properly
+        central_frame.grid_rowconfigure(0, weight=0)
+        central_frame.grid_rowconfigure(1, weight=1)  # Expand scrollable frame
+        central_frame.grid_columnconfigure(0, weight=0)
+        central_frame.grid_columnconfigure(1, weight=1)
+        central_frame.grid_columnconfigure(0, weight=0)
 
         # Search bar (shorter width to accommodate close button)
         self.search_var = ctk.StringVar()
@@ -57,7 +63,7 @@ class LibraryPage(ctk.CTkFrame):
         self.add_placeholder(self.search_entry, "Search")
         self.search_entry.bind("<KeyRelease>", self.search_sets)
 
-        # Close button in top right of central frame
+        # Close button
         self.close_button = ctk.CTkButton(
             central_frame,
             text="",
@@ -71,11 +77,11 @@ class LibraryPage(ctk.CTkFrame):
         # Scrollable container for sets
         self.sets_container = CTkScrollableFrame(central_frame, fg_color="transparent")
         self.sets_container.grid(
-            row=1, column=0, columnspan=2, padx=20, pady=10, sticky="nsew"
+            row=1, column=0, columnspan=3, padx=20, pady=10, sticky="nsew"
         )
-        self.sets_container.grid_columnconfigure(0, weight=1)
+        self.sets_container.grid_columnconfigure(0, weight=0)
         self.sets_container.grid_columnconfigure(1, weight=1)
-        self.sets_container.grid_columnconfigure(2, weight=1)
+        self.sets_container.grid_columnconfigure(2, weight=0)
         self.display_sets()
 
     def add_placeholder(self, entry, placeholder):
