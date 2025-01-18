@@ -70,7 +70,7 @@ class SignUpLoginPage(tk.Frame):
             bg="white",
         )
         self.canvas_for_image.grid(row=0, column=1, sticky="nsew")
-        self.image = Image.open("assets/physics_logo.png")
+        self.image = Image.open("assets/recall_logo.png")
         self.canvas_for_image.bind("<Configure>", self.on_resize)
 
     def on_resize(self, event):

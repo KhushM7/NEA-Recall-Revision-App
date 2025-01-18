@@ -57,9 +57,12 @@ class HomePage(ctk.CTkFrame):
         self.grid_rowconfigure(1, weight=1)  # Give space to the dashboard
 
         # Placeholder for logo
-        ctk.CTkLabel(parent, text="Logo Placeholder", width=100, height=100).grid(
-            row=0, column=0, sticky="w", padx=20, pady=20
+        memory_recall_logo = ctk.CTkImage(
+            light_image=Image.open("./assets/memory_recall_icon.png"), size=(100, 100)
         )
+        ctk.CTkLabel(
+            parent, text="", image=memory_recall_logo, width=100, height=100
+        ).grid(row=0, column=0, sticky="w", padx=20, pady=20)
 
         button_font = ctk.CTkFont(family="Open Sans", size=18)
         button_color = "#B6DCFE"  # Light blue background
@@ -169,6 +172,7 @@ class HomePage(ctk.CTkFrame):
         # Popup menu
         if self.user_menu:  # Prevent duplicate menus
             return
+        self.update_idletasks()
 
         self.user_menu = Toplevel(self)
         self.user_menu.overrideredirect(True)  # Remove window decorations
@@ -203,14 +207,21 @@ class HomePage(ctk.CTkFrame):
         canvas.create_image(0, 0, image=self.rounded_bg_image, anchor=NW)
         canvas.place(x=0, y=0)  # Place the canvas in the background
 
-        # Position the menu to align with the right edge of the main window
+        # Fetch button and screen positions
+        button_x = self.user_menu_button.winfo_rootx()
         button_y = self.user_menu_button.winfo_rooty()
         button_height = self.user_menu_button.winfo_height()
-        window_x = self.winfo_rootx()  # Main window's x-position
-        window_width = self.winfo_width()  # Main window's width
+        screen_width = self.master.winfo_screenwidth()
 
-        x = window_x + window_width - menu_width - 10  # Align menu's right edge
-        y = button_y + button_height + 5
+        # Calculate menu position
+        x = min(
+            button_x, screen_width - menu_width - 10
+        )  # Align with button or screen edge
+        y = button_y + button_height + 5  # Position below the button
+
+        # Debug final position
+
+        # Set geometry
         self.user_menu.geometry(f"{menu_width}x{menu_height}+{x}+{y}")
 
         button_font = ctk.CTkFont(size=14)
@@ -267,22 +278,21 @@ class HomePage(ctk.CTkFrame):
         """Attach the user menu to the main window."""
 
         def update_menu_position():
-            if not self.user_menu:  # Stop updating if menu is destroyed
+            if not self.user_menu:  # Stop if the menu is destroyed
                 return
 
-            # Get updated position of the main window
-            window_x = self.winfo_rootx()
-            window_y = self.winfo_rooty()
-            window_width = self.winfo_width()
-
-            # Get updated position of the button relative to the main window
+            # Get updated button position
+            button_x = self.user_menu_button.winfo_rootx()
             button_y = self.user_menu_button.winfo_rooty()
             button_height = self.user_menu_button.winfo_height()
+            screen_width = self.master.winfo_screenwidth()
 
-            # Calculate new menu position
+            # Recalculate menu position
             menu_width = 200
-            x = window_x + window_width - menu_width - 10  # Align menu's right edge
+            x = min(button_x, screen_width - menu_width - 10)
             y = button_y + button_height + 5
+
+            # Apply the new position
             self.user_menu.geometry(f"+{x}+{y}")
 
             # Schedule the next update

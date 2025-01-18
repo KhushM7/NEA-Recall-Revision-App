@@ -41,8 +41,6 @@ class PhysicsApp(tk.Frame):
 
         # Start with login page
         self.show_login_page()
-        self.master.grid_rowconfigure(0, weight=1)
-        self.master.grid_columnconfigure(0, weight=1)
 
     def show_frame(self, row, col, frame_class, *args):
         """
