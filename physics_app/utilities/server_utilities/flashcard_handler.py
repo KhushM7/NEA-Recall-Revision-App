@@ -16,6 +16,8 @@ GET_TOTAL_LAPSES_ENDPOINT = "/get_total_lapses"
 GET_STABILITY_DATA_ENDPOINT = "/get_stability_data"
 GET_DIFFICULTY_DATA_ENDPOINT = "/get_difficulty_data"
 GET_CURRENT_RATINGS_ENDPOINT = "/get_current_ratings"
+UPDATE_DAILY_REVIEW_LIMIT_ENDPOINT = "/update_daily_review_limit"
+GET_DAILY_REVIEW_LIMIT_ENDPOINT = "/get_daily_review_limit"
 
 
 class FlashcardHandler:
@@ -136,3 +138,17 @@ class FlashcardHandler:
         params = {"user_id": user_id}
         result = make_request("GET", GET_CURRENT_RATINGS_ENDPOINT, params=params)
         return result.get("current_ratings", [])
+
+    def update_daily_review_limit(self, user_id: int, new_limit: int):
+        """Update the daily review limit for a user."""
+        payload = {"user_id": user_id, "new_limit": new_limit}
+        result = make_request(
+            "POST", UPDATE_DAILY_REVIEW_LIMIT_ENDPOINT, payload=payload
+        )
+        return result
+
+    def get_daily_review_limit(self, user_id: int):
+        """Fetch the daily review limit for a user."""
+        params = {"user_id": user_id}
+        result = make_request("GET", GET_DAILY_REVIEW_LIMIT_ENDPOINT, params=params)
+        return result.get("daily_review_limit", 0)

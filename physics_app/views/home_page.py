@@ -1,7 +1,11 @@
+import re
+
 import customtkinter as ctk
 from tkinter import Toplevel, NW, Canvas
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
+from physics_app.utilities.alert import Alert
+from physics_app.utilities.server_utilities.flashcard_handler import FlashcardHandler
 from physics_app.utilities.server_utilities.user_authentication import (
     UserAuthentication,
 )
@@ -12,6 +16,8 @@ from physics_app.utilities.setup_icons import (
     setup_plus_icon,
     setup_settings_icon,
     setup_logout_icon,
+    setup_edit_icon,
+    setup_error_icon,
 )
 from physics_app.views.dashboard_page import DashboardPage
 
@@ -37,6 +43,7 @@ class HomePage(ctk.CTkFrame):
         parent.grid_rowconfigure(1, weight=1)
         parent.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
         self.user_auth = UserAuthentication(server_url)
+        self.flashcard_handler = FlashcardHandler(server_url)
         self.username = self.user_auth.get_username(user_id) or "User"
         self.on_review_click = on_review
         self.on_create_set_click = on_create_set
@@ -50,6 +57,8 @@ class HomePage(ctk.CTkFrame):
         self.icon_plus, _ = setup_plus_icon()
         self.icon_settings, _ = setup_settings_icon()
         self.icon_logout, _ = setup_logout_icon()
+        self.icon_edit, _ = setup_edit_icon()
+        self.icon_error, _ = setup_error_icon()
 
         # Layout Configuration
 
@@ -249,7 +258,7 @@ class HomePage(ctk.CTkFrame):
             width=180,
             height=30,
             corner_radius=10,
-            command=lambda: print("Settings clicked"),
+            command=self.open_settings_window,
         )
         settings_button.place(x=10, y=50)
 
@@ -300,3 +309,147 @@ class HomePage(ctk.CTkFrame):
 
         # Start updating the position
         update_menu_position()
+
+    def open_settings_window(self):
+        """Open the settings window."""
+        # Destroy existing user menu
+        if self.user_menu:
+            self.user_menu.destroy()
+            self.user_menu = None
+
+        # Create a new top-level window for settings
+        self.settings_window = ctk.CTkToplevel()
+        self.settings_window.title("User Settings")
+        self.settings_window.grab_set()
+        self.settings_window.transient()
+
+        # Ensure the window is in focus and can't be clicked off
+        self.settings_window.focus_set()
+
+        # Layout variables
+        padding = 10
+
+        # Labels, edit buttons, and entry fields
+        labels = ["Email Address", "Username", "Daily Review Limit"]
+        values = [
+            self.user_auth.get_email(self.user_id),
+            self.user_auth.get_username(self.user_id),
+            self.flashcard_handler.get_daily_review_limit(self.user_id),
+        ]
+
+        self.entries = []  # Store entry widgets
+        self.edited = [False, False, False]  # Track if fields were edited
+
+        for i, (label_text, value) in enumerate(zip(labels, values)):
+            label = ctk.CTkLabel(
+                self.settings_window, text=label_text, font=("Arial", 16)
+            )
+            label.grid(row=i, column=0, padx=padding, pady=padding, sticky="w")
+
+            # Edit button
+            def enable_field(idx=i):
+                self.entries[idx].configure(state="normal")
+                self.edited[idx] = True
+
+            edit_button = ctk.CTkButton(
+                self.settings_window,
+                image=self.icon_edit,
+                text="",
+                fg_color="transparent",
+                hover_color="#BDE7BD",
+                command=enable_field,
+            )
+            edit_button.grid(row=i, column=1, padx=padding, pady=padding)
+
+            # Entry field
+            entry = ctk.CTkEntry(self.settings_window, font=("Arial", 14))
+            entry.insert(0, value)
+            entry.configure(state="disabled")
+            entry.grid(row=i, column=2, padx=padding, pady=padding, sticky="ew")
+
+            self.entries.append(entry)
+
+        # Alert setup
+        self.alert = Alert(
+            self.settings_window,
+            title="Error",
+            message="",
+            fg_color="#fdeded",
+            icon=self.icon_error,
+        )
+        self.alert.grid(
+            row=(len(labels) + 1),
+            column=1,
+            columnspan=3,
+            padx=10,
+            pady=10,
+            sticky="ew",
+        )
+
+        save_button = ctk.CTkButton(
+            self.settings_window,
+            text="Save",
+            command=lambda: self.save_settings(labels),
+            font=("Arial", 16),
+        )
+        save_button.grid(row=len(labels), column=0, columnspan=3, pady=padding)
+        self.alert.hide()
+
+    def save_settings(self, labels):
+        # Validate and update settings
+        email = self.entries[0].get()
+        username = self.entries[1].get()
+        daily_limit = self.entries[2].get()
+
+        error_messages = []
+
+        # Email validation
+        if self.edited[0]:
+            email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+            if not re.match(email_regex, email):
+                error_messages.append("Invalid email format.")
+            elif self.user_auth.is_email_taken(email):
+                error_messages.append("Email is already registered.")
+
+        # Username validation
+        if self.edited[1]:
+            if self.user_auth.is_username_taken(username):
+                error_messages.append("Username is already taken.")
+
+        # Daily review limit validation
+        if self.edited[2]:
+            if not daily_limit.isdigit() or int(daily_limit) <= 0:
+                error_messages.append("Daily review limit must be a positive integer.")
+
+        # Show errors if any
+        if error_messages:
+            self.alert.update_text(
+                new_title="Error", new_message="\n".join(error_messages)
+            )
+            self.alert.show(
+                row=(len(labels) + 1),
+                column=0,
+                columnspan=3,
+                padx=10,
+                pady=10,
+                sticky="ew",
+            )
+            return
+
+        # Update the values if no errors
+        if self.edited[0]:
+            self.user_auth.update_email(self.user_id, email)
+        if self.edited[1]:
+            self.user_auth.update_username(self.user_id, username)
+        if self.edited[2]:
+            self.flashcard_handler.update_daily_review_limit(
+                self.user_id, int(daily_limit)
+            )
+
+        # Close the settings window
+        self.settings_window.destroy()
+
+    def show_error_alert(self, message, title="Error"):
+        """Show an error alert."""
+        self.alert.update_text(new_title=title, new_message=message)
+        self.alert.show(row=2, column=1, padx=10, sticky="new")

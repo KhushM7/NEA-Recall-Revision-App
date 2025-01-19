@@ -9,6 +9,9 @@ IS_EMAIL_TAKEN_ENDPOINT = "/is_email_taken"
 IS_USERNAME_TAKEN_ENDPOINT = "/is_username_taken"
 GET_USER_ID_ENDPOINT = "/get_user_id"
 GET_USERNAME_ENDPOINT = "/get_username"
+UPDATE_EMAIL_ENDPOINT = "/update_email"
+UPDATE_USERNAME_ENDPOINT = "/update_username"
+GET_EMAIL_ENDPOINT = "/get_email"
 
 
 class UserAuthentication:
@@ -102,3 +105,41 @@ class UserAuthentication:
         """
         result = make_request("GET", GET_USERNAME_ENDPOINT, params={"user_id": user_id})
         return result.get("username") if "username" in result else None
+
+    def get_email(self, user_id: int) -> Optional[str]:
+        """
+        Retrieve the email based on user ID.
+
+        :param user_id: The ID of the user.
+        :return: Email if found, otherwise None.
+        """
+        result = make_request("GET", GET_EMAIL_ENDPOINT, params={"user_id": user_id})
+        return result.get("email") if "email" in result else None
+
+    def update_email(self, user_id: int, new_email: str) -> bool:
+        """
+        Update the email for a user by sending the new email to the server.
+
+        :param user_id: The ID of the user.
+        :param new_email: The new email for the user.
+        :return: True if the email was updated successfully, False otherwise.
+        """
+        result = make_request(
+            "POST", UPDATE_EMAIL_ENDPOINT, {"user_id": user_id, "email": new_email}
+        )
+        return "error" not in result
+
+    def update_username(self, user_id: int, new_username: str) -> bool:
+        """
+        Update the username for a user by sending the new username to the server.
+
+        :param user_id: The ID of the user.
+        :param new_username: The new username for the user.
+        :return: True if the username was updated successfully, False otherwise.
+        """
+        result = make_request(
+            "POST",
+            UPDATE_USERNAME_ENDPOINT,
+            {"user_id": user_id, "username": new_username},
+        )
+        return "error" not in result

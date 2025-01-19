@@ -78,8 +78,15 @@ class Alert(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
 
-    def show(self, row=0, column=0, padx=10, pady=None, sticky="nsew"):
-        self.grid(row=row, column=column, padx=padx, pady=pady, sticky=sticky)
+    def show(self, row=0, column=0, padx=10, pady=None, columnspan=None, sticky="nsew"):
+        self.grid(
+            row=row,
+            column=column,
+            columnspan=columnspan,
+            padx=padx,
+            pady=pady,
+            sticky=sticky,
+        )
 
     def hide(self):
         self.grid_forget()
