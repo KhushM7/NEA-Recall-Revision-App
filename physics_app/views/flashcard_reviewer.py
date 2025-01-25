@@ -71,7 +71,6 @@ class BaseFlashcardReviewer(ctk.CTkFrame):
         self.flashcard_label.grid(row=1, column=1, pady=20, sticky="nsew")
         self.flashcard_label.bind("<Button-1>", lambda event: self.flip_card())
 
-        # Instruction Label
         self.instruction_label = ctk.CTkLabel(
             main_frame,
             text="Click the card to flip it.",
@@ -88,6 +87,8 @@ class BaseFlashcardReviewer(ctk.CTkFrame):
         self.button_frame.grid_columnconfigure(1, weight=1)
         self.button_frame.grid_columnconfigure(2, weight=1)
         self.button_frame.grid_columnconfigure(3, weight=1)
+
+        # Score Frame
         self.score_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         self.score_frame.grid_rowconfigure(0, weight=1)
         self.score_frame.grid_columnconfigure(0, weight=1)

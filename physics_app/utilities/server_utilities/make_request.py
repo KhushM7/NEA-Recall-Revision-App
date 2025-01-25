@@ -27,7 +27,6 @@ def make_request(
             method, url, json=payload, headers=headers, params=params
         )
         response.raise_for_status()  # Raise an exception for HTTP errors
-        return response.json()  # Return the JSON response
+        return response.json()
     except requests.RequestException as e:
-        print(f"Error: An error occurred: {e}")
         return {"error": str(e)}

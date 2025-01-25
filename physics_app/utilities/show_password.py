@@ -12,7 +12,6 @@ class PasswordEntry(ctk.CTkFrame):
         super().__init__(master, *args, **kwargs)
         self.configure(fg_color="#F1F2F3")
 
-        # Load icons
         self.icon_show_password, self.icon_show_password_size = (
             setup_show_password_icon()
         )
@@ -20,7 +19,7 @@ class PasswordEntry(ctk.CTkFrame):
             setup_hide_password_icon()
         )
 
-        # Create password entry with initial hidden state
+        # Create password entry with *'s to hide the password
         self.password_entry = ctk.CTkEntry(self, show="*", placeholder_text="Password")
         self.password_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -37,20 +36,16 @@ class PasswordEntry(ctk.CTkFrame):
         )
         self.toggle_button.pack(side=tk.RIGHT)
 
-        # Initialize state
-        self.is_password_visible = False  # Start with password hidden
+        self.is_password_visible = False
 
     def toggle_password_visibility(self):
         if self.is_password_visible:
-            # Hide password
             self.password_entry.configure(show="*")
             self.toggle_button.configure(image=self.icon_hide_password)
         else:
-            # Show password
             self.password_entry.configure(show="")
             self.toggle_button.configure(image=self.icon_show_password)
 
-        # Toggle visibility state
         self.is_password_visible = not self.is_password_visible
 
     def clear_entry(self):

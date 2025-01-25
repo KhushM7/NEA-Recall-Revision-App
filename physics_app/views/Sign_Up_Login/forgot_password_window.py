@@ -61,6 +61,8 @@ class ForgotPasswordManager:
         self.forgot_password_center_frame = ctk.CTkFrame(
             self.forgot_password_window, fg_color="#F1F2F3"
         )
+
+        # Grid configuration
         self.forgot_password_center_frame.grid(row=0, column=0, sticky="nsew")
         self.forgot_password_center_frame.grid_rowconfigure(0, weight=1)
         self.forgot_password_center_frame.grid_rowconfigure(1, weight=2)
@@ -327,6 +329,7 @@ class ForgotPasswordManager:
         if self.timer:
             self.timer.cancel()
 
+        # Use threading timer to update the timer label every second
         if self.time_left > 0:
             self.timer_label.configure(text=f"Code expires in {self.time_left} seconds")
             self.time_left -= 1

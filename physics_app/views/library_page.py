@@ -43,27 +43,24 @@ class LibraryPage(ctk.CTkFrame):
         )
         central_frame.grid(row=1, column=1, columnspan=3, sticky="nsew")
 
-        # Configure central_frame to expand properly
         central_frame.grid_rowconfigure(0, weight=0)
-        central_frame.grid_rowconfigure(1, weight=1)  # Expand scrollable frame
+        central_frame.grid_rowconfigure(1, weight=1)
         central_frame.grid_columnconfigure(0, weight=0)
         central_frame.grid_columnconfigure(1, weight=1)
         central_frame.grid_columnconfigure(0, weight=0)
 
-        # Search bar (shorter width to accommodate close button)
         self.search_var = ctk.StringVar()
         self.search_entry = ctk.CTkEntry(
             central_frame,
             textvariable=self.search_var,
-            height=40,  # Thicker
-            width=400,  # Adjusted width
-            font=ctk.CTkFont(size=16),  # Larger font
+            height=40,
+            width=400,
+            font=ctk.CTkFont(size=16),
         )
         self.search_entry.grid(row=0, column=0, padx=(20, 5), pady=20, sticky="ew")
         self.add_placeholder(self.search_entry, "Search")
         self.search_entry.bind("<KeyRelease>", self.search_sets)
 
-        # Close button
         self.close_button = ctk.CTkButton(
             central_frame,
             text="",
@@ -108,10 +105,10 @@ class LibraryPage(ctk.CTkFrame):
             widget.destroy()
 
         # Display each set
-        for idx, (set_name, num_terms) in enumerate(
+        for index, (set_name, num_terms) in enumerate(
             self.set_names_with_num_terms.items()
         ):
-            self.create_set_widget(set_name, num_terms, idx)
+            self.create_set_widget(set_name, num_terms, index)
 
     def create_set_widget(self, set_name: str, num_terms: int, row: int):
         def on_set_click(event):
@@ -131,11 +128,9 @@ class LibraryPage(ctk.CTkFrame):
         # Bind click event to the set_frame
         set_frame.bind("<Button-1>", on_set_click)
 
-        # Set name (large font)
         set_label = ctk.CTkLabel(set_frame, text=set_name, font=ctk.CTkFont(size=18))
         set_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-        # Number of terms (small grey text)
         terms_label = ctk.CTkLabel(
             set_frame,
             text=f"{num_terms} terms",
@@ -144,7 +139,6 @@ class LibraryPage(ctk.CTkFrame):
         )
         terms_label.grid(row=0, column=1, padx=10, pady=5, sticky="ne")
 
-        # Edit button
         edit_button = ctk.CTkButton(
             set_frame,
             image=self.edit_icon,
@@ -165,10 +159,9 @@ class LibraryPage(ctk.CTkFrame):
             edit_button, background_color="transparent", hover_delay=150, text="Edit"
         )
 
-        # Prevent edit_button clicks from propagating to set_frame
+        # Prevent edit_button clicks from triggering any click events on the set_frame
         edit_button.bind("<Button-1>", lambda e: "break")
 
-        # Delete button
         delete_button = ctk.CTkButton(
             set_frame,
             image=self.bin_icon,
@@ -179,7 +172,6 @@ class LibraryPage(ctk.CTkFrame):
             height=30,
             command=lambda: self.delete_set_and_refresh(set_name, set_frame),
         )
-        # Place delete button at bottom left
         delete_button.grid(row=1, column=0, padx=10, pady=10, sticky="sw")
         Tooltip(
             delete_button,
@@ -188,7 +180,7 @@ class LibraryPage(ctk.CTkFrame):
             text="Delete",
         )
 
-        # Prevent delete_button clicks from propagating to set_frame
+        # Prevent delete_button clicks from triggering any click events on the set_frame
         delete_button.bind("<Button-1>", lambda e: "break")
 
     def search_sets(self, event=None):
@@ -204,13 +196,12 @@ class LibraryPage(ctk.CTkFrame):
         for widget in self.sets_container.winfo_children():
             widget.destroy()
 
-        for idx, set_name in enumerate(matches):
+        for index, set_name in enumerate(matches):
             self.create_set_widget(
-                set_name, self.set_names_with_num_terms[set_name], idx
+                set_name, self.set_names_with_num_terms[set_name], index
             )
 
     def save_set_callback(self, set_name, updated_flashcards, deleted_card_ids):
-        # Update existing cards
         for card in updated_flashcards:
             if card["card_id"]:
                 self.flashcard_handler.update_flashcard(self.user_id, card)
@@ -223,7 +214,6 @@ class LibraryPage(ctk.CTkFrame):
                 self.flashcard_handler.create_flashcard(self.user_id, card_data)
                 pass
 
-        # Delete marked cards
         if deleted_card_ids:
             for card_id in deleted_card_ids:
                 self.flashcard_handler.delete_card(self.user_id, card_id)

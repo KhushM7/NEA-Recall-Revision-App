@@ -1,14 +1,15 @@
 import customtkinter as ctk
 from tkinter import StringVar
 from datetime import datetime
-from calendar import monthrange
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.dates import DateFormatter, DayLocator
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from physics_app.utilities.server_utilities.flashcard_handler import FlashcardHandler
 from physics_app.utilities.setup_icons import setup_next_icon, setup_previous_icon
+from physics_app.utilities.utilities import (
+    plot_histogram,
+    plot_pie_chart,
+    plot_calendar_bar_graph,
+)
 
 
 class DashboardPage(ctk.CTkFrame):
@@ -18,24 +19,23 @@ class DashboardPage(ctk.CTkFrame):
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")
         self.next_icon, _ = setup_next_icon()
         self.previous_icon, _ = setup_previous_icon()
-        # Ensure the frame resizes properly
+
         self.grid_columnconfigure((0, 1, 2), weight=1, uniform="column")
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
 
-        # Title
         title_font = ctk.CTkFont(size=30, weight="bold")
         title_label = ctk.CTkLabel(
             self, text="Dashboard", font=title_font, text_color="black"
         )
         title_label.grid(row=0, column=1, sticky="nsew", pady=(10, 5))
 
-        # Create and configure frames
         self.create_frames()
+
+        # Whenever the dashboard is shown, update the graphs
         self.bind("<Visibility>", lambda e: self.on_visibility_change())
 
     def create_frames(self):
-        # Frame container with dynamic layout
         frame_container = ctk.CTkFrame(self, fg_color="transparent")
         frame_container.grid(
             row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
@@ -43,19 +43,11 @@ class DashboardPage(ctk.CTkFrame):
         frame_container.grid_columnconfigure((0, 1, 2), weight=1, uniform="column")
         frame_container.grid_rowconfigure((0, 1), weight=1, uniform="row")
 
-        # Add frames
-        frame_colors = [
-            "#D3D3D3",
-            "#D3D3D3",
-            "#D3D3D3",
-            "#D3D3D3",
-            "#D3D3D3",
-            "#D3D3D3",
-        ]
+        frame_color = "#D3D3D3"
         for i in range(6):
             row, col = divmod(i, 3)
             frame = ctk.CTkFrame(
-                frame_container, fg_color=frame_colors[i], corner_radius=10
+                frame_container, fg_color=frame_color, corner_radius=10
             )
             frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
             frame.grid_columnconfigure(0, weight=1)
@@ -108,13 +100,11 @@ class DashboardPage(ctk.CTkFrame):
             command=self.update_review_log_graph,
         ).grid(row=0, column=3, padx=5)
 
-        # Graph placeholder
         self.graph_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
         self.graph_canvas.grid(
             row=2, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
         )
 
-        # Adjust the layout for graph and stats label
         frame.grid_rowconfigure(2, weight=5)  # Allocate most space to the graph
         frame.grid_rowconfigure(3, weight=1)  # Allocate less space to the stats label
         frame.grid_columnconfigure(
@@ -129,14 +119,12 @@ class DashboardPage(ctk.CTkFrame):
             row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=(5, 10)
         )
 
-        # Initial graph rendering
         self.update_review_log_graph()
 
     def update_review_log_graph(self, *args):
         selected_month = self.month_var.get()
         selected_year = int(self.year_var.get())
 
-        # Fetch data using FlashcardHandler
         try:
             review_data = self.flashcard_handler.get_review_log_by_month(
                 self.user_id, selected_month, selected_year
@@ -149,17 +137,15 @@ class DashboardPage(ctk.CTkFrame):
             self.stats_label.configure(text="No reviews found for this month.")
             review_data = {}
 
-        # Update statistics
         most_reviewed_day = max(review_data, key=review_data.get, default="N/A")
         total_review_days = sum(1 for count in review_data.values() if count > 0)
         self.stats_label.configure(
             text=f"Most Reviewed Day: {most_reviewed_day}\nTotal Review Days: {total_review_days}"
         )
 
-        # Get canvas dimensions and plot the graph
         canvas_width = self.graph_canvas.winfo_width() or 600
         canvas_height = self.graph_canvas.winfo_height() or 400
-        self.plot_calendar_bar_graph(
+        plot_calendar_bar_graph(
             self.graph_canvas,
             selected_month,
             selected_year,
@@ -174,17 +160,15 @@ class DashboardPage(ctk.CTkFrame):
             row=0, column=0, columnspan=3, pady=(10, 5)
         )
 
-        # Initialize the month and year variables
+        # Initialize the month and year variables with the current month and year
         self.future_month_var = StringVar(value=datetime.now().strftime("%B"))
         self.future_year_var = StringVar(value=str(datetime.now().year))
 
-        # Calendar canvas
         self.calendar_canvas = ctk.CTkFrame(frame, fg_color="white", corner_radius=10)
         self.calendar_canvas.grid(
             row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
         )
 
-        # Navigation buttons
         prev_button = ctk.CTkButton(
             frame, text="", image=self.previous_icon, command=self.show_previous_month
         )
@@ -195,14 +179,10 @@ class DashboardPage(ctk.CTkFrame):
         )
         next_button.grid(row=2, column=2, sticky="e", padx=10, pady=10)
 
-        # Adjust the layout for graph and stats label
-        frame.grid_rowconfigure(1, weight=5)  # Allocate most space to the graph
-        frame.grid_rowconfigure(3, weight=1)  # Allocate less space to the stats label
-        frame.grid_columnconfigure(
-            (0, 1, 2), weight=1
-        )  # Evenly space columns for centering
+        frame.grid_rowconfigure(1, weight=5)
+        frame.grid_rowconfigure(3, weight=1)
+        frame.grid_columnconfigure((0, 1, 2), weight=1)
 
-        # Stats label
         self.future_stats_label = ctk.CTkLabel(
             frame,
             text="Total Cards to Review: ",
@@ -214,14 +194,12 @@ class DashboardPage(ctk.CTkFrame):
             row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=(5, 10)
         )
 
-        # Initial calendar rendering
         self.update_future_calendar()
 
     def update_future_calendar(self):
         selected_month = self.future_month_var.get()
         selected_year = int(self.future_year_var.get())
 
-        # Fetch future reviews data
         try:
             review_data = self.flashcard_handler.get_next_reviews_by_month(
                 self.user_id, selected_month, selected_year
@@ -231,14 +209,12 @@ class DashboardPage(ctk.CTkFrame):
             self.future_stats_label.configure(text=f"Error fetching data: {str(e)}")
             review_data = {}
 
-        # Update stats label
         total_cards = sum(review_data.values())
         self.future_stats_label.configure(text=f"Total Cards to Review: {total_cards}")
 
-        # Get canvas dimensions and plot the graph
         canvas_width = self.calendar_canvas.winfo_width() or 600
         canvas_height = self.calendar_canvas.winfo_height() or 400
-        self.plot_calendar_bar_graph(
+        plot_calendar_bar_graph(
             self.calendar_canvas,
             selected_month,
             selected_year,
@@ -248,7 +224,6 @@ class DashboardPage(ctk.CTkFrame):
         )
 
     def show_previous_month(self):
-        # Move to the previous month
         current_month = datetime.strptime(self.future_month_var.get(), "%B").month
         current_year = int(self.future_year_var.get())
 
@@ -264,7 +239,6 @@ class DashboardPage(ctk.CTkFrame):
         self.update_future_calendar()
 
     def show_next_month(self):
-        # Move to the next month
         current_month = datetime.strptime(self.future_month_var.get(), "%B").month
         current_year = int(self.future_year_var.get())
 
@@ -288,10 +262,10 @@ class DashboardPage(ctk.CTkFrame):
         self.states_canvas.grid(
             row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10
         )
-        frame.grid_rowconfigure(1, weight=5)  # Allocate most space to the graph
-        frame.grid_rowconfigure(3, weight=1)  # Allocate less space to the stats label
+        frame.grid_rowconfigure(1, weight=5)
+        frame.grid_rowconfigure(3, weight=1)
         frame.grid_columnconfigure((0, 1, 2), weight=1)
-        # Stats label
+
         self.lapses_stats_label = ctk.CTkLabel(
             frame,
             text="Number of times a card has been forgotten: ",
@@ -303,7 +277,6 @@ class DashboardPage(ctk.CTkFrame):
             row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=(5, 10)
         )
 
-        # Initial calendar rendering
         self.update_card_states_graph()
 
     def update_card_states_graph(self):
@@ -322,13 +295,10 @@ class DashboardPage(ctk.CTkFrame):
             text=f"Number of times a card has been forgotten: {total_lapses}"
         )
 
-        # Get canvas dimensions and plot the graph
         canvas_width = self.states_canvas.winfo_width() or 600
         canvas_height = self.states_canvas.winfo_height() or 400
 
-        self.plot_pie_chart(
-            self.states_canvas, states_data, canvas_width, canvas_height
-        )
+        plot_pie_chart(self.states_canvas, states_data, canvas_width, canvas_height)
 
     def setup_stability_frame(self, frame):
         title_font = ctk.CTkFont(size=16, weight="bold")
@@ -349,13 +319,16 @@ class DashboardPage(ctk.CTkFrame):
             print(f"Error fetching data: {str(e)}")
             stability_data = {}
 
+        # Get the stability values for y-axis
         stability_values = list(stability_data.values())
+
+        # Using Sturges' rule to determine the number of bins
         num_bins = int(np.ceil(1 + np.log2(len(stability_values))))
-        # Get canvas dimensions and plot the graph
+
         canvas_width = self.stability_canvas.winfo_width() or 600
         canvas_height = self.stability_canvas.winfo_height() or 400
 
-        self.plot_histogram(
+        plot_histogram(
             self.stability_canvas,
             stability_values,
             num_bins,
@@ -385,13 +358,16 @@ class DashboardPage(ctk.CTkFrame):
             print(f"Error fetching data: {str(e)}")
             difficulty_data = {}
 
+        # Get the difficulty values for y-axis
         difficulty_values = list(difficulty_data.values())
+
+        # Using Sturges' rule to determine the number of bins
         num_bins = int(np.ceil(1 + np.log2(len(difficulty_values))))
-        # Get canvas dimensions and plot the graph
+
         canvas_width = self.difficulty_canvas.winfo_width() or 600
         canvas_height = self.difficulty_canvas.winfo_height() or 400
 
-        self.plot_histogram(
+        plot_histogram(
             self.difficulty_canvas,
             difficulty_values,
             num_bins,
@@ -422,176 +398,12 @@ class DashboardPage(ctk.CTkFrame):
             print(f"Error fetching data: {str(e)}")
             rating_data = {}
 
-        # Get canvas dimensions and plot the graph
         canvas_width = self.states_canvas.winfo_width() or 600
         canvas_height = self.states_canvas.winfo_height() or 400
-        self.plot_pie_chart(
-            self.ratings_canvas, rating_data, canvas_width, canvas_height
-        )
-
-    def plot_histogram(
-        self,
-        parent,
-        data_list,
-        bins,
-        canvas_width,
-        canvas_height,
-        graph_text,
-        x_label,
-        y_label,
-    ):
-        """
-        Plots a histogram using the given data.
-
-        Args:
-            parent: Tkinter parent widget where the chart will be displayed.
-            data_list: List of numerical data to plot in the histogram.
-            bins: Number of bins for the histogram.
-            canvas_width: Width of the canvas in pixels.
-            canvas_height: Height of the canvas in pixels.
-            graph_text: Title of the graph.
-            x_label: Label for the x-axis.
-            y_label: Label for the y-axis.
-        """
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-        # Define a single color for all bins
-        color = plt.cm.Paired(0)  # Choose the first color in the Paired colormap
-
-        # Adjust figure size to fully utilize canvas space
-        fig, ax = plt.subplots(
-            figsize=(canvas_width / 100, canvas_height / 100), dpi=100
-        )
-
-        # Create the histogram
-        ax.hist(
-            data_list,
-            bins=bins,
-            color=color,
-            edgecolor="black",
-            alpha=0.7,  # Transparency for better visual effect
-        )
-
-        # Dynamically adjust font sizes for the title and labels
-        title_fontsize = max(canvas_height // 20, 14)
-        label_fontsize = max(canvas_height // 35, 5)
-
-        # Set titles and labels
-        ax.set_title(
-            graph_text,
-            fontsize=title_fontsize,
-            pad=canvas_height // 40,  # Add padding to prevent overlap
-        )
-        ax.set_xlabel(
-            x_label,
-            fontsize=label_fontsize,
-            labelpad=canvas_height // 50,  # Add padding for x-label
-        )
-        ax.set_ylabel(
-            y_label,
-            fontsize=label_fontsize,
-            labelpad=canvas_height // 50,  # Add padding for y-label
-        )
-
-        # Adjust layout to ensure the graph fits within the canvas
-        fig.tight_layout(pad=1.5)
-
-        # Clear any existing widgets before displaying the new chart
-        for widget in parent.winfo_children():
-            widget.destroy()
-        canvas = FigureCanvasTkAgg(fig, master=parent)
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-
-    def plot_calendar_bar_graph(
-        self,
-        parent,
-        selected_month,
-        selected_year,
-        data_dict,
-        canvas_width,
-        canvas_height,
-    ):
-        month_number = datetime.strptime(selected_month, "%B").month
-        num_days = monthrange(selected_year, month_number)[1]
-        full_days = [
-            datetime(selected_year, month_number, day) for day in range(1, num_days + 1)
-        ]
-        day_to_review = {
-            datetime(selected_year, month_number, int(day)): count
-            for day, count in data_dict.items()
-        }
-        reviews_with_gaps = [day_to_review.get(day, 0) for day in full_days]
-
-        # Adjust figure to fit the available canvas
-        fig, ax = plt.subplots(
-            figsize=(canvas_width / 100, canvas_height / 100), dpi=100
-        )
-        ax.bar(full_days, reviews_with_gaps, color="skyblue", width=0.8)
-        ax.set_title(f"Reviews in {selected_month} {selected_year}")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Number of Reviews")
-        ax.grid(axis="y", linestyle="--", alpha=0.7)
-        ax.set_xlim([full_days[0], full_days[-1]])
-        ax.xaxis.set_major_locator(DayLocator(interval=1))
-        ax.xaxis.set_major_formatter(DateFormatter("%d"))
-        for label in ax.get_xticklabels():
-            label.set_rotation(0)
-            label.set_horizontalalignment("center")
-
-        # Use tight layout to prevent clipping
-        fig.tight_layout(pad=2)
-
-        # Clear any existing widgets before displaying the new graph
-        for widget in parent.winfo_children():
-            widget.destroy()
-        canvas = FigureCanvasTkAgg(fig, master=parent)
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-
-    def plot_pie_chart(
-        self,
-        parent,
-        data_dict,
-        canvas_width,
-        canvas_height,
-    ):
-        # Extract keys and values from the data dictionary
-        labels = list(data_dict.keys())
-        sizes = list(data_dict.values())
-
-        # Define colors for each slice
-        colors = plt.cm.Paired(range(len(labels)))
-
-        # Adjust figure size to fully utilize canvas space
-        fig, ax = plt.subplots(
-            figsize=(canvas_width / 100, canvas_height / 100), dpi=100
-        )
-
-        # Create the pie chart
-        wedges, texts, autotexts = ax.pie(
-            sizes,
-            labels=labels,
-            autopct="%1.1f%%",
-            startangle=140,
-            colors=colors,
-            textprops={"fontsize": max(canvas_width // 50, 10)},  # Dynamic text size
-        )
-
-        # Ensure the pie chart is a perfect circle and fills the canvas
-        ax.set_aspect("equal")  # Ensures the pie chart is circular
-        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)  # Remove all margins
-
-        # Clear any existing widgets before displaying the new chart
-        for widget in parent.winfo_children():
-            widget.destroy()
-        canvas = FigureCanvasTkAgg(fig, master=parent)
-        canvas.draw()
-        canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+        plot_pie_chart(self.ratings_canvas, rating_data, canvas_width, canvas_height)
 
     def on_visibility_change(self):
-        self.update_idletasks()  # Ensure the geometry manager updates widget sizes
+        self.update_idletasks()
         self.update_review_log_graph()
         self.update_future_calendar()
         self.update_card_states_graph()

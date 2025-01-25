@@ -14,7 +14,6 @@ class CreateSetPage(ctk.CTkFrame):
         self.on_close = on_close
         self.flashcard_handler = FlashcardHandler(server_url="http://127.0.0.1:5000")
 
-        # Set background color and layout configurations
         self.configure(fg_color="#f2f6fa")  # Light blue background
 
         # Configure grid layout for centering
@@ -47,7 +46,7 @@ class CreateSetPage(ctk.CTkFrame):
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_rowconfigure(1, weight=1)
         main_frame.grid_rowconfigure(2, weight=1)
-        # Title Label
+
         self.title_label = ctk.CTkLabel(
             main_frame,
             text="Create Flashcard Set",
@@ -61,7 +60,6 @@ class CreateSetPage(ctk.CTkFrame):
         input_frame.grid(row=1, column=1, pady=20, padx=20, sticky="ew")
         input_frame.grid_columnconfigure(0, weight=1)
 
-        # Set Name Entry
         self.set_name_label = ctk.CTkLabel(
             input_frame,
             text="Set Name:",
@@ -75,7 +73,6 @@ class CreateSetPage(ctk.CTkFrame):
         )
         self.set_name_entry.grid(row=1, column=0, sticky="ew", pady=5)
 
-        # Front of Card Textbox
         self.front_label = ctk.CTkLabel(
             input_frame,
             text="Front of Card:",
@@ -89,7 +86,6 @@ class CreateSetPage(ctk.CTkFrame):
         )
         self.front_textbox.grid(row=3, column=0, sticky="ew", pady=5)
 
-        # Back of Card Textbox
         self.back_label = ctk.CTkLabel(
             input_frame,
             text="Back of Card:",
@@ -103,15 +99,14 @@ class CreateSetPage(ctk.CTkFrame):
         )
         self.back_textbox.grid(row=5, column=0, sticky="ew", pady=5)
 
-        # Buttons Frame
+        # Button Frame for Import Set, Save Flashcard, and Close
         button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         button_frame.grid(row=2, column=1, pady=(10, 20))
 
-        # Import Set Button
         self.import_button = ctk.CTkButton(
             button_frame,
             text="Import Set",
-            command=self.import_set,
+            command=lambda: ImportSetPage(self.root, self.user_id),
             fg_color="#5dd8d5",
             hover_color="#4cc0b8",
             text_color="white",
@@ -119,7 +114,6 @@ class CreateSetPage(ctk.CTkFrame):
         )
         self.import_button.grid(row=0, column=0, padx=10)
 
-        # Save Flashcard Button
         self.save_button = ctk.CTkButton(
             button_frame,
             text="Save Flashcard",
@@ -131,7 +125,6 @@ class CreateSetPage(ctk.CTkFrame):
         )
         self.save_button.grid(row=0, column=1, padx=10)
 
-        # Close Button
         self.close_button = ctk.CTkButton(
             button_frame,
             text="Close",
@@ -144,7 +137,6 @@ class CreateSetPage(ctk.CTkFrame):
         self.close_button.grid(row=0, column=2, padx=10)
 
     def save_flashcard(self):
-        # Collect input and validate
         set_name = self.set_name_entry.get().strip()
         front_text = self.front_textbox.get("1.0", "end-1c").strip()
         back_text = self.back_textbox.get("1.0", "end-1c").strip()
@@ -156,10 +148,5 @@ class CreateSetPage(ctk.CTkFrame):
         flashcard_data = {"set_name": set_name, "front": front_text, "back": back_text}
         self.flashcard_handler.create_flashcard(self.user_id, flashcard_data)
 
-        # Clear inputs
         self.front_textbox.delete("1.0", "end")
         self.back_textbox.delete("1.0", "end")
-
-    def import_set(self):
-        # Placeholder function for Import Set feature
-        ImportSetPage(self.root, self.user_id)

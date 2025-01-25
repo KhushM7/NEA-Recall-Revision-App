@@ -31,9 +31,8 @@ class Tooltip:
         self.padx = padx
         self.pady = pady
         self.tip_window = None
-        self._after_id = None
+        self.after_id = None
 
-        # Bind events to widget
         self.widget.bind("<Enter>", self.on_enter)
         self.widget.bind("<Leave>", self.on_leave)
 
@@ -46,14 +45,14 @@ class Tooltip:
 
     def schedule(self):
         """Schedule the tooltip to show after the delay."""
-        self.unschedule()  # Ensure any previous schedule is canceled
-        self._after_id = self.widget.after(self.hover_delay, self.show_tip)
+        self.unschedule()
+        self.after_id = self.widget.after(self.hover_delay, self.show_tip)
 
     def unschedule(self):
         """Cancel the scheduled tooltip display if any."""
-        if self._after_id:
-            self.widget.after_cancel(self._after_id)
-            self._after_id = None
+        if self.after_id:
+            self.widget.after_cancel(self.after_id)
+            self.after_id = None
 
     def show_tip(self):
         """Create and display the tooltip."""
@@ -61,6 +60,7 @@ class Tooltip:
             return
 
         # Get the position of the widget to place the tooltip
+        # _ is used when I am not interested in the return value
         x, y, _, _ = self.widget.bbox("insert")
         x += self.widget.winfo_rootx() + self.win_padx
         y += self.widget.winfo_rooty() + self.win_pady
@@ -78,7 +78,6 @@ class Tooltip:
         else:
             self.tip_window.configure(fg_color=self.background_color)
 
-        # Create label for tooltip
         label = ctk.CTkLabel(
             self.tip_window,
             text=self.text,

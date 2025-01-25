@@ -24,11 +24,9 @@ class Alert(ctk.CTkFrame):
         self.title = title
         self.close_icon, self.close_icon_size = setup_close_icon()
 
-        # Set default fonts if not provided
         title_font = title_font or ctk.CTkFont(size=14, weight="bold")
         message_font = message_font or ctk.CTkFont(size=12, weight="normal")
 
-        # Title Label
         self.title_label = ctk.CTkLabel(
             self,
             text=self.title,
@@ -39,7 +37,6 @@ class Alert(ctk.CTkFrame):
         )
         self.title_label.grid(row=0, column=1, padx=(10, 0), pady=(10, 0), sticky="w")
 
-        # Message Label
         self.message_label = ctk.CTkLabel(
             self,
             text=message,
@@ -53,12 +50,10 @@ class Alert(ctk.CTkFrame):
             row=1, column=1, padx=(10, 0), pady=(0, 10), sticky="ew"
         )
 
-        # Icon
         if icon:
             self.icon = ctk.CTkLabel(self, image=icon, fg_color=fg_color, text="")
             self.icon.grid(row=0, column=0, padx=(10, 0), pady=(10, 0), sticky="nw")
 
-        # Close Button
         self.button = ctk.CTkButton(
             self,
             text="",
@@ -70,7 +65,7 @@ class Alert(ctk.CTkFrame):
         )
         self.button.grid(row=0, column=2, padx=(0, 10), pady=(10, 0), sticky="ne")
 
-        # Grid configuration
+        # Grid configuration of elements
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=0)

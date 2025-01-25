@@ -1,8 +1,9 @@
 customtkinter~=5.2.2
-pillow~=10.4.0
-pytablericons~=1.0.0
+pillow~=11.1.0
+pytablericons~=1.0.1
 requests~=2.32.3
 
 
 xlwings~=0.33.5
 matplotlib~=3.10.0
+numpy~=2.2.1

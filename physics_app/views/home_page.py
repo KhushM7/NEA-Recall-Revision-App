@@ -35,22 +35,21 @@ class HomePage(ctk.CTkFrame):
     ):
         super().__init__(parent, fg_color="white")
 
-        # User Authentication and Username
         self.master = parent
         self.user_id = user_id
         self.master.configure(fg_color="white")
         parent.grid_rowconfigure(0, weight=0)
         parent.grid_rowconfigure(1, weight=1)
         parent.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+
         self.user_auth = UserAuthentication(server_url)
         self.flashcard_handler = FlashcardHandler(server_url)
-        self.username = self.user_auth.get_username(user_id) or "User"
+
         self.on_review_click = on_review
         self.on_create_set_click = on_create_set
         self.on_library_click = on_library
         self.on_logout = on_logout
 
-        # Icons Setup
         self.icon_folders, _ = setup_folder_icon()
         self.icon_calender_clock, _ = setup_calender_clock_icon()
         self.icon_calender_cancel, _ = setup_calender_cancel_icon()
@@ -60,12 +59,9 @@ class HomePage(ctk.CTkFrame):
         self.icon_edit, _ = setup_edit_icon()
         self.icon_error, _ = setup_error_icon()
 
-        # Layout Configuration
-
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)  # Give space to the dashboard
 
-        # Placeholder for logo
         memory_recall_logo = ctk.CTkImage(
             light_image=Image.open("./assets/memory_recall_icon.png"), size=(100, 100)
         )
@@ -74,9 +70,8 @@ class HomePage(ctk.CTkFrame):
         ).grid(row=0, column=0, sticky="w", padx=20, pady=20)
 
         button_font = ctk.CTkFont(family="Open Sans", size=18)
-        button_color = "#B6DCFE"  # Light blue background
+        button_color = "#B6DCFE"
 
-        # Buttons
         self.create_main_button(
             "Your Library",
             self.icon_folders,
@@ -101,8 +96,7 @@ class HomePage(ctk.CTkFrame):
             button_color,
             self.on_create_set_click,
         )
-
-        # User Menu Button
+        self.username = self.user_auth.get_username(user_id) or "User"
         self.user_menu_image = self.create_user_icon(self.username[0])
         self.user_menu_button = ctk.CTkButton(
             parent,
@@ -110,7 +104,7 @@ class HomePage(ctk.CTkFrame):
             text="",
             width=50,
             height=50,
-            fg_color="transparent",  # User button background
+            fg_color="transparent",
             hover=False,
             command=self.toggle_user_menu,
         )
@@ -150,7 +144,7 @@ class HomePage(ctk.CTkFrame):
         # Draw circle
         draw.ellipse(
             (offset, offset, offset + circle_size, offset + circle_size), fill="#0E273C"
-        )  # Circle color
+        )
 
         # Load font and calculate text size
         try:
@@ -178,18 +172,17 @@ class HomePage(ctk.CTkFrame):
             self.show_user_menu()
 
     def show_user_menu(self):
-        # Popup menu
+        # Popout menu
         if self.user_menu:  # Prevent duplicate menus
             return
         self.update_idletasks()
+        self.username = self.user_auth.get_username(self.user_id) or "User"
 
         self.user_menu = Toplevel(self)
         self.user_menu.overrideredirect(True)  # Remove window decorations
 
         # Configure window transparency
-        self.user_menu.wm_attributes(
-            "-transparentcolor", "#FFFFFF"
-        )  # Transparency key color
+        self.user_menu.wm_attributes("-transparentcolor", "#FFFFFF")
 
         # Create a rounded corner image
         menu_width, menu_height = 200, 150
@@ -199,7 +192,7 @@ class HomePage(ctk.CTkFrame):
         draw.rounded_rectangle(
             (0, 0, menu_width, menu_height),
             radius=radius,
-            fill="#CDEDFD",  # Background color
+            fill="#CDEDFD",
         )
 
         # Convert to Tkinter image
@@ -222,20 +215,14 @@ class HomePage(ctk.CTkFrame):
         button_height = self.user_menu_button.winfo_height()
         screen_width = self.master.winfo_screenwidth()
 
-        # Calculate menu position
-        x = min(
-            button_x, screen_width - menu_width - 10
-        )  # Align with button or screen edge
-        y = button_y + button_height + 5  # Position below the button
+        # Calculate menu position and align with button or screen edge
+        x = min(button_x, screen_width - menu_width - 10)
+        y = button_y + button_height + 5
 
-        # Debug final position
-
-        # Set geometry
         self.user_menu.geometry(f"{menu_width}x{menu_height}+{x}+{y}")
 
         button_font = ctk.CTkFont(size=14)
 
-        # Username Label
         ctk.CTkLabel(
             self.user_menu,
             text=self.username,
@@ -244,7 +231,6 @@ class HomePage(ctk.CTkFrame):
             bg_color="#CDEDFD",
         ).place(x=10, y=10)
 
-        # Settings Button
         settings_button = ctk.CTkButton(
             self.user_menu,
             text="Settings",
@@ -262,7 +248,6 @@ class HomePage(ctk.CTkFrame):
         )
         settings_button.place(x=10, y=50)
 
-        # Log Out Button
         logout_button = ctk.CTkButton(
             self.user_menu,
             text="Log Out",
@@ -280,7 +265,6 @@ class HomePage(ctk.CTkFrame):
         )
         logout_button.place(x=10, y=90)
 
-        # Attach menu to main window
         self.attach_menu_to_window()
 
     def attach_menu_to_window(self):
@@ -296,12 +280,10 @@ class HomePage(ctk.CTkFrame):
             button_height = self.user_menu_button.winfo_height()
             screen_width = self.master.winfo_screenwidth()
 
-            # Recalculate menu position
             menu_width = 200
             x = min(button_x, screen_width - menu_width - 10)
             y = button_y + button_height + 5
 
-            # Apply the new position
             self.user_menu.geometry(f"+{x}+{y}")
 
             # Schedule the next update
@@ -311,7 +293,6 @@ class HomePage(ctk.CTkFrame):
         update_menu_position()
 
     def open_settings_window(self):
-        """Open the settings window."""
         # Destroy existing user menu
         if self.user_menu:
             self.user_menu.destroy()
@@ -326,7 +307,6 @@ class HomePage(ctk.CTkFrame):
         # Ensure the window is in focus and can't be clicked off
         self.settings_window.focus_set()
 
-        # Layout variables
         padding = 10
 
         # Labels, edit buttons, and entry fields
@@ -337,7 +317,7 @@ class HomePage(ctk.CTkFrame):
             self.flashcard_handler.get_daily_review_limit(self.user_id),
         ]
 
-        self.entries = []  # Store entry widgets
+        self.entries = []
         self.edited = [False, False, False]  # Track if fields were edited
 
         for i, (label_text, value) in enumerate(zip(labels, values)):
@@ -346,7 +326,6 @@ class HomePage(ctk.CTkFrame):
             )
             label.grid(row=i, column=0, padx=padding, pady=padding, sticky="w")
 
-            # Edit button
             def enable_field(idx=i):
                 self.entries[idx].configure(state="normal")
                 self.edited[idx] = True
@@ -369,7 +348,6 @@ class HomePage(ctk.CTkFrame):
 
             self.entries.append(entry)
 
-        # Alert setup
         self.alert = Alert(
             self.settings_window,
             title="Error",
@@ -421,7 +399,6 @@ class HomePage(ctk.CTkFrame):
             if not daily_limit.isdigit() or int(daily_limit) <= 0:
                 error_messages.append("Daily review limit must be a positive integer.")
 
-        # Show errors if any
         if error_messages:
             self.alert.update_text(
                 new_title="Error", new_message="\n".join(error_messages)
@@ -446,7 +423,6 @@ class HomePage(ctk.CTkFrame):
                 self.user_id, int(daily_limit)
             )
 
-        # Close the settings window
         self.settings_window.destroy()
 
     def show_error_alert(self, message, title="Error"):

@@ -21,11 +21,11 @@ class PhysicsApp(tk.Frame):
         self.server_url = "http://127.0.0.1:5000"
         self.user_id = 0
 
-        # Container to hold all pages
-
         # Configure grid to expand for the container
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+
+        # Container to hold all pages
         self.container = ctk.CTkFrame(self)
         self.container.grid(row=0, column=0, sticky="nsew")
         self.container.grid(row=0, column=0, sticky="nsew")
@@ -51,6 +51,7 @@ class PhysicsApp(tk.Frame):
             col: The column to place the frame in.
             *args: Arguments to pass when creating the frame.
         """
+
         # Clear any existing frame
         for frame in self.container.winfo_children():
             frame.destroy()
@@ -123,7 +124,6 @@ class PhysicsApp(tk.Frame):
 
 
 def main():
-    # Set up the main application window
     root = ctk.CTk()
     app = PhysicsApp(master=root)
     app.grid(row=0, column=0, sticky="nsew")

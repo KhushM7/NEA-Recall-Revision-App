@@ -13,19 +13,17 @@ class ImportSetPage(ctk.CTkToplevel):
         self.user_id = user_id
         self.title("Import Flashcard Set")
         self.geometry("500x600")
-        self.grab_set()  # Makes this window modal
+        self.grab_set()  # Prevents interaction with parent window
         self.transient(parent)  # Links it to the parent window
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # Title label
         self.label_title = ctk.CTkLabel(
             self, text="Import Flashcard Set", font=("Arial", 16)
         )
         self.label_title.grid(row=0, column=0, pady=(10, 20), sticky="n")
 
-        # Instruction label
         self.label_instructions = ctk.CTkLabel(
             self,
             text=(
@@ -39,20 +37,17 @@ class ImportSetPage(ctk.CTkToplevel):
         )
         self.label_instructions.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="w")
 
-        # Choose file button
         self.button_choose_file = ctk.CTkButton(
             self, text="Choose File", command=self.choose_file
         )
         self.button_choose_file.grid(row=2, column=0, padx=20, pady=(10, 20))
 
-        # Entry for set name
         self.label_set_name = ctk.CTkLabel(self, text="Set Name:")
         self.label_set_name.grid(row=3, column=0, padx=20, sticky="w")
 
         self.entry_set_name = ctk.CTkEntry(self, placeholder_text="Enter set name here")
         self.entry_set_name.grid(row=4, column=0, padx=20, pady=(5, 15), sticky="ew")
 
-        # Textbox for file contents
         self.label_file_contents = ctk.CTkLabel(self, text="File Contents:")
         self.label_file_contents.grid(row=5, column=0, padx=20, sticky="w")
 
@@ -61,11 +56,9 @@ class ImportSetPage(ctk.CTkToplevel):
             row=6, column=0, padx=20, pady=(5, 15), sticky="ew"
         )
 
-        # Save button
         self.button_save = ctk.CTkButton(self, text="Save", command=self.save_set)
         self.button_save.grid(row=7, column=0, padx=20, pady=(15, 20))
 
-        # Variable to store the selected file
         self.selected_file = None
 
     def choose_file(self):

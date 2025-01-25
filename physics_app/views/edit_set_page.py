@@ -7,9 +7,9 @@ class EditSetWindow(ctk.CTkToplevel):
         super().__init__(master)
 
         self.set_name = set_name
-        self.flashcards = flashcards  # List[Dict[str, any]]
+        self.flashcards = flashcards
         self.save_callback = save_callback
-        self.deleted_card_ids = []  # Track cards for deletion
+        self.deleted_card_ids = []
 
         self.icon_plus, _ = setup_plus_icon()
         self.icon_bin, _ = setup_bin_icon()
